@@ -137,10 +137,10 @@
 </div>
 
 <script>
-    // Define la URL base del backend. Se espera que 'window.BACKEND_API_URL' sea inyectada por Vercel en producción.
-    // Para desarrollo local, usa 'http://localhost:3000'.
-    window.BACKEND_API_URL = 'http://localhost:3000';
+    window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app/';
+</script>
 
+<script>
     // Función para mostrar mensajes personalizados en la UI del dashboard
     function showDashboardAlert(message, type = 'success', duration = 5000) {
         const successDiv = document.getElementById('dashboardSuccessMessage');
@@ -164,7 +164,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-        const BACKEND_URL = window.BACKEND_API_URL; // Usa la URL definida globalmente
 
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (!isLoggedIn || isLoggedIn !== 'true') {

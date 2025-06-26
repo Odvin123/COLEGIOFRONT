@@ -4,7 +4,6 @@ const MAX_ATTEMPTS = 3;
 const LOCKOUT_DURATION = 10000; // 10 segundos
 
 // Define la URL base del backend. Se espera que 'window.BACKEND_API_URL' sea inyectada por Vercel en producción.
-const BACKEND_URL = window.BACKEND_API_URL || 'http://localhost:3000';
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
