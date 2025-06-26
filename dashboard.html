@@ -137,10 +137,9 @@
 </div>
 
 <script>
-    window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app/';
-</script>
+    // Define la URL del backend directamente a la de Koyeb
+    const BACKEND_URL = 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app/';
 
-<script>
     // Función para mostrar mensajes personalizados en la UI del dashboard
     function showDashboardAlert(message, type = 'success', duration = 5000) {
         const successDiv = document.getElementById('dashboardSuccessMessage');
