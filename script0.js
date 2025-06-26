@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
             input.classList.add('is-invalid');
             input.classList.remove('is-valid');
         }
+            const BACKEND_URL = 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app/';
+
 
         // Función para limpiar mensajes de error
         function clearError(input) {
