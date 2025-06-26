@@ -1,0 +1,136 @@
+/* Reset básico para el body y html */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f0f2f5; /* Un fondo gris claro para el body */
+    display: flex; /* Centra el contenido verticalmente */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center; /* Centra el contenido verticalmente */
+    min-height: 100vh;
+}
+
+/* Contenedor principal del formulario */
+.form-container {
+    /* Estas propiedades de centrado ya están en el body, pero se pueden mantener aquí para claridad si lo deseas */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* min-height: 100vh; Eliminado, ya está en el body para evitar duplicidad */
+}
+
+
+/* Estilo del formulario principal */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre elementos del formulario */
+    background-color: #ffffff;
+    padding: 40px; /* Aumentado el padding para más espacio */
+    width: 400px; /* Ancho fijo para el formulario */
+    max-width: 90%; /* Para que sea responsivo en pantallas pequeñas */
+    border-radius: 15px; /* Bordes más suaves */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    box-sizing: border-box; /* Incluye padding y borde en el ancho/alto */
+}
+
+/* Sección de título y subtítulo */
+.title-section {
+    text-align: center;
+    margin-bottom: 25px; /* Espacio debajo del título */
+}
+
+.form-title {
+    color: #007bff; /* Azul vibrante para el título principal */
+    font-size: 2.2em; /* Tamaño de fuente más grande */
+    margin: 0;
+    padding: 0;
+    font-weight: 700; /* Más audaz */
+}
+
+.form-subtitle {
+    color: #555;
+    font-size: 1.2em;
+    margin-top: 5px;
+    font-weight: 400;
+}
+
+/* Campos de entrada */
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Espacio entre label y inputForm */
+}
+
+.flex-column > label {
+    color: #333; /* Color de etiqueta más oscuro */
+    font-weight: 600;
+    font-size: 1em;
+}
+
+.inputForm {
+    border: 1px solid #ddd; /* Borde más sutil */
+    border-radius: 8px; /* Bordes redondeados */
+    height: 48px; /* Altura del contenedor del input */
+    display: flex;
+    align-items: center;
+    padding: 0 12px; /* Padding interno */
+    transition: 0.2s ease-in-out;
+    background-color: #f8f8f8; /* Fondo ligero para los inputs */
+}
+
+.inputForm i {
+    color: #777; /* Color para los íconos */
+    margin-right: 10px; /* Espacio entre ícono y texto */
+    font-size: 1em;
+}
+
+.input {
+    border: none;
+    background-color: transparent; /* Fondo transparente para el input real */
+    width: 100%; /* Ocupa todo el espacio restante */
+    height: 100%;
+    font-size: 1em;
+    color: #333;
+}
+
+.input:focus {
+    outline: none;
+}
+
+.inputForm:focus-within {
+    border-color: #007bff; /* Resaltar borde en foco con el color azul */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Efecto de brillo en foco */
+}
+
+/* Estilo del botón de enviar */
+.button-submit {
+    margin-top: 25px; /* Espacio superior */
+    background-color: #007bff; /* Color azul para el botón */
+    border: none;
+    color: white;
+    font-size: 1.1em; /* Fuente ligeramente más grande */
+    font-weight: 600; /* Más audaz */
+    border-radius: 8px;
+    height: 50px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button-submit:hover {
+    background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
+    transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
+}
+
+.button-submit:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 10px;
+}
