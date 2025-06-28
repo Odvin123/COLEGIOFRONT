@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // --- Si todas las validaciones del frontend pasan, procede con el envío a la API ---
             try {
                 // 1. Enviar Datos Académicos
-                const academicResponse = await fetch('${BACKEND_URL}api/academic', {
+                const academicResponse = await fetch(`${BACKEND_URL}/api/academic`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('✅ Datos académicos guardados. ID de Matrícula:', matriculaId);
 
                 // 2. Enviar Datos del Estudiante
-                const studentResponse = await fetch('${BACKEND_URL}/api/student', {
+                const studentResponse = await fetch(`${BACKEND_URL}/api/student`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('✅ Datos del estudiante guardados.');
 
                 // 3. Enviar Datos de Padres/Tutor
-                const parentResponse = await fetch('${BACKEND_URL}/api/parent', {
+                const parentResponse = await fetch(`${BACKEND_URL}/api/parent`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -461,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Intento de generación de PDF
                 try {
-                    const pdfResponse = await fetch('${BACKEND_URL}api/generate-pdf', {
+                    const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

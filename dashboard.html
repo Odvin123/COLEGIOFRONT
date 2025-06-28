@@ -5,6 +5,7 @@
   <title>Panel de Administración - Registros</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+   <script src="config.js"></script>
   <style>
     body {
       background-color: #f8f9fa;
@@ -138,8 +139,7 @@
 
 <script>
     // Define la URL del backend directamente a la de Koyeb
-    const BACKEND_URL = 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app/';
-
+      const BACKEND_URL = window.BACKEND_API_URL; // Ahora toma de la variable global
     // Función para mostrar mensajes personalizados en la UI del dashboard
     function showDashboardAlert(message, type = 'success', duration = 5000) {
         const successDiv = document.getElementById('dashboardSuccessMessage');
