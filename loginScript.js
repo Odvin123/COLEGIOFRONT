@@ -3,7 +3,7 @@ let lockoutEndTime = 0;
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_DURATION = 10000; // 10 segundos
 
-const BACKEND_URL = window.BACKEND_API_URL || 'http://localhost:3000';
+const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app'
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
