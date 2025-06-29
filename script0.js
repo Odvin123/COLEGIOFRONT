@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
             input.classList.add('is-invalid');
             input.classList.remove('is-valid');
         }
-const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ac9.koyeb.app'
+const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app'
 
 
         // Función para limpiar mensajes de error
