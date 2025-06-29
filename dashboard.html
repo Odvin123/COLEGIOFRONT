@@ -138,9 +138,9 @@
 </div>
 
 <script>
-    // Define la URL del backend directamente a la de Koyeb
-      const BACKEND_URL = window.BACKEND_API_URL; // Ahora toma de la variable global
-    // Función para mostrar mensajes personalizados en la UI del dashboard
+    
+      const BACKEND_URL = window.BACKEND_API_URL; 
+    
     function showDashboardAlert(message, type = 'success', duration = 5000) {
         const successDiv = document.getElementById('dashboardSuccessMessage');
         const errorDiv = document.getElementById('dashboardErrorMessage');
@@ -167,7 +167,7 @@
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (!isLoggedIn || isLoggedIn !== 'true') {
             showDashboardAlert('Acceso denegado. Por favor inicia sesión.', 'error');
-            setTimeout(() => { // Pequeño retraso para que el usuario vea el mensaje
+            setTimeout(() => { 
                 window.location.href = 'login.html';
             }, 1500);
             return;
@@ -179,14 +179,14 @@
 
             const data = await response.json();
 
-            // Llenar tabla académica
+            
             populateTable('academicosTable', data.academicos, [
               'id', 'fechaMatricula', 'departamento', 'codigoUnico',
               'codigoCentro', 'nombreCentro', 'nivelEducativo',
               'modalidad', 'turno', 'grado', 'seccion', 'repitente'
             ]);
 
-            // Llenar tabla de estudiantes
+            
             populateTable('estudiantesTable', data.estudiantes, [
               'id', 'nombreCompleto', 'telefono', 'direccion',
               'fechaNacimiento', 'genero', 'peso', 'talla',
@@ -213,7 +213,7 @@
               habitaIndigena: row.habitaIndigena || 'N/A'
             }));
 
-            // Llenar tabla de padres/tutores
+            
             populateTable('padresTable', data.padres, [
               'id', 'nombreMadre', 'cedulaMadre', 'telefonoMadre',
               'nombrePadre', 'cedulaPadre', 'telefonoPadre',
@@ -234,7 +234,7 @@
         } catch (error) {
             console.error('❌ Error:', error);
             showDashboardAlert('Hubo un problema cargando los registros.', 'error');
-            setTimeout(() => { // Pequeño retraso para que el usuario vea el mensaje
+            setTimeout(() => { 
                 window.location.href = 'login.html';
             }, 1500);
         }

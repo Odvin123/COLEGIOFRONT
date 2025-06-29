@@ -39,13 +39,13 @@
     <div class="container">
         <h2>Formulario de Matrícula</h2>
 
-        <!-- Contenedores para mensajes personalizados -->
+      
         <div id="formSuccessMessage" class="custom-alert success"></div>
         <div id="formErrorMessage" class="custom-alert error"></div>
         <div id="loadingIndicator" class="loading-indicator">Cargando... por favor espera.</div>
 
         <form id="matriculaForm">
-            <!-- ... (el resto de tu formulario HTML permanece igual) ... -->
+           
             <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
             <label for="telefono">Teléfono:</label>
             <input type="tel" id="telefono" name="telefono" required>
@@ -269,17 +269,14 @@
                 <label><input type="radio" name="repitente" value="No"> No</label>
             </div>
 
-            <!-- Botón de Registrar -->
+           
             <button type="submit">Registrar</button>
         </form>
     </div>
 
-    <!-- Script para definir la URL del backend y cargar script0.js -->
+    
     <script>
-        // Esta variable será reemplazada por Vercel durante el build en producción.
-        // Para desarrollo local, usa 'http://localhost:3000'.
-        // Cuando despliegues en Vercel, configura una variable de entorno llamada BACKEND_API_URL
-        // con el valor de la URL de tu backend en Koyeb (ej. https://tu-backend.koyeb.app).
+        
      window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
     </script>
     <script src="script0.js"></script>

@@ -1,7 +1,7 @@
 let loginAttempts = 0;
 let lockoutEndTime = 0;
 const MAX_ATTEMPTS = 3;
-const LOCKOUT_DURATION = 10000; // 10 segundos
+const LOCKOUT_DURATION = 10000; 
 
 const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app'
 
@@ -35,7 +35,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     }
 
     try {
-        const response = await fetch(`${BACKEND_URL}/api/login`, { // Usa la URL dinámica
+        const response = await fetch(`${BACKEND_URL}/api/login`, { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo: email, contraseña: password })
@@ -60,13 +60,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             return;
         }
 
-        // Si el login es exitoso
+       
         const result = await response.json();
 
         if (result.usuario && result.usuario.rol === 'admin') {
             localStorage.setItem('isLoggedIn', 'true');
             console.log('Login exitoso. Redirigiendo a /dashboard.html');
-            window.location.href = '/dashboard.html'; // Asegúrate que esta ruta sea correcta en Vercel
+            window.location.href = '/dashboard.html'; 
             loginAttempts = 0;
             lockoutEndTime = 0;
         } else {

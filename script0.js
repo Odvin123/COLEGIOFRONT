@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const matriculaForm = document.getElementById('matriculaForm');
     if (matriculaForm) {
-        // Función para mostrar mensajes de error debajo de los campos
+
         function showError(input, message) {
             let errorElement = input.nextElementSibling;
             if (!errorElement || !errorElement.classList.contains('error-message')) {
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app'
 
 
-        // Función para limpiar mensajes de error
+       
         function clearError(input) {
             const errorElement = input.nextElementSibling;
             if (errorElement && errorElement.classList.contains('error-message')) {
@@ -30,7 +30,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        // Función para aplicar validación de solo letras
+        
         function applyLettersOnlyValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function(event) {
@@ -99,7 +99,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        // Función para aplicar validación y formato de cédula nicaragüense
+        
         function applyCedulaValidation(inputElement) {
             if (inputElement) {
                 inputElement.addEventListener('input', function() {
@@ -149,7 +149,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        // Función para aplicar validación de números flotantes (peso/talla)
+       
         function applyFloatValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function() {
@@ -179,30 +179,28 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        // --- FUNCIÓN PRINCIPAL para manejar el filtrado de grados/niveles (CORREGIDA) ---
+        
         function setupGradeFiltering() {
             const nivelEducativoSelect = document.getElementById('nivelEducativo');
             const gradoSelect = document.getElementById('grado');
 
             if (nivelEducativoSelect && gradoSelect) {
-                // Guarda todas las opciones originales del select de grado.
-                // Es importante hacer esto UNA SOLA VEZ al inicio.
+              
                 const initialOptions = Array.from(gradoSelect.options);
 
                 const filterGrades = () => {
                     const selectedNivel = nivelEducativoSelect.value;
-                    gradoSelect.innerHTML = ''; // Limpia las opciones actuales del select de grado
+                    gradoSelect.innerHTML = ''; 
 
-                    // Siempre añade la opción "Seleccione..." al principio
+                    
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
-                    defaultOption.textContent = 'Seleccione una opción'; // Cambiado para mayor claridad
+                    defaultOption.textContent = 'Seleccione una opción'; 
                     gradoSelect.appendChild(defaultOption);
 
                     let filteredOptions = [];
 
-                    // Los valores en las condiciones 'if' deben coincidir EXACTAMENTE con los 'value' de tu HTML.
-                    // Los textos en 'includes' deben coincidir EXACTAMENTE con los textContent de tus opciones de grado en HTML.
+                    
                     if (selectedNivel === 'Educación Inicial') {
                         filteredOptions = initialOptions.filter(option =>
                             ['Primer Nivel', 'Segundo Nivel', 'Tercer Nivel'].includes(option.textContent)
@@ -216,28 +214,25 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                             ['Séptimo grado/Primer año', 'Octavo grado/Segundo año', 'Noveno grado/Tercer año', 'Décimo grado/Cuarto año', 'Undécimo grado/Quinto año'].includes(option.textContent)
                         );
                     } else {
-                        // Si no se selecciona un nivel específico, simplemente no se añaden más opciones
-                        // (solo queda la de "Seleccione una opción").
+                        
                         return;
                     }
 
-                    // Añade las opciones filtradas de nuevo al select de grado
+                  
                     filteredOptions.forEach(option => gradoSelect.appendChild(option.cloneNode(true)));
-                    gradoSelect.value = ''; // Restablece la selección del grado cuando cambia el nivel
+                    gradoSelect.value = ''; 
                 };
 
-                // Escucha cambios en el select de Nivel Educativo
+               
                 nivelEducativoSelect.addEventListener('change', filterGrades);
 
-                // Llama a la función de filtrado al cargar la página para establecer el estado inicial
+               
                 filterGrades();
             }
         }
 
 
-        // --- Aplicar todas las validaciones relevantes a los campos ---
-
-        // Datos Personales del Estudiante
+      
         applyLettersOnlyValidation(document.getElementById('nombre'), 'Primer Nombre');
         applyLettersOnlyValidation(document.getElementById('segundoNombre'), 'Segundo Nombre');
         applyLettersOnlyValidation(document.getElementById('apellido1'), 'Primer Apellido');
@@ -250,7 +245,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
         applyLettersOnlyValidation(document.getElementById('territorioIndigena'), 'Territorio Indígena');
         applyLettersOnlyValidation(document.getElementById('habitaIndigena'), 'Habita Indígena');
 
-        // Datos de Contacto de Padres/Tutor
+        
         applyLettersOnlyValidation(document.getElementById('nombreMadre'), 'Nombres y Apellidos de la madre');
         applyCedulaValidation(document.getElementById('cedulaMadre'));
         applyPhoneValidation(document.getElementById('telefonoMadre'), 8, '88887777');
@@ -263,11 +258,11 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
         applyCedulaValidation(document.getElementById('cedulaTutor'));
         applyPhoneValidation(document.getElementById('telefonoTutor'), 8, '88887777');
 
-        // Llama a la función para configurar el filtrado de grados
+        
         setupGradeFiltering();
 
 
-        // --- Manejo del Submit del Formulario ---
+       
         matriculaForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -282,14 +277,14 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
 
             let formIsValid = true;
 
-            // Disparar blur en todos los campos para mostrar errores antes del submit final
+           
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly) {
                     input.dispatchEvent(new Event('blur'));
                 }
             });
 
-            // --- Validación de campos obligatorios de Datos Personales del Estudiante ---
+            
             const studentRequiredFields = ['telefono', 'direccion', 'nombre', 'apellido1', 'fechaNacimiento',
                 'genero', 'peso', 'talla', 'nacionalidad', 'paisNacimiento',
                 'departamento', 'municipio', 'lenguaMaterna', 'discapacidad'
@@ -302,7 +297,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
             }
 
-            // --- Validación de al menos un conjunto de datos de contacto (madre, padre o tutor) ---
+           
             const isMadreComplete = data.nombreMadre || data.cedulaMadre || data.telefonoMadre;
             const isPadreComplete = data.nombrePadre || data.cedulaPadre || data.telefonoPadre;
             const isTutorComplete = data.nombreTutor || data.cedulaTutor || data.telefonoTutor;
@@ -322,7 +317,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
             }
 
-            // --- Validación de campos obligatorios de Datos ACADÉMICOS ---
+            
             const academicRequiredFields = ['fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
                 'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad',
                 'turno', 'grado', 'seccion', 'repitente'
@@ -357,23 +352,23 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
             }
 
-            // --- Verificar si hay algún campo con errores '.is-invalid' después de todas las validaciones ---
+            
             const invalidInputs = this.querySelectorAll('.is-invalid');
             if (invalidInputs.length > 0) {
                 formIsValid = false;
-                // Hace scroll al primer campo inválido para que el usuario lo vea
+
                 invalidInputs[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
-            // Si el formulario no es válido, detener el envío
+            
             if (!formIsValid) {
                 alert("Por favor, corrige todos los campos marcados con errores antes de enviar.");
                 return;
             }
 
-            // --- Si todas las validaciones del frontend pasan, procede con el envío a la API ---
+            
             try {
-                // 1. Enviar Datos Académicos
+                
                 const academicResponse = await fetch(`${BACKEND_URL}/api/academic`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -402,7 +397,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 const matriculaId = academicResult.id;
                 console.log('✅ Datos académicos guardados. ID de Matrícula:', matriculaId);
 
-                // 2. Enviar Datos del Estudiante
+            
                 const studentResponse = await fetch(`${BACKEND_URL}/api/student`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -435,7 +430,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
                 console.log('✅ Datos del estudiante guardados.');
 
-                // 3. Enviar Datos de Padres/Tutor
+                
                 const parentResponse = await fetch(`${BACKEND_URL}/api/parent`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -459,7 +454,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
                 console.log('✅ Datos de padres/tutor guardados.');
 
-                // Intento de generación de PDF
+                
                 try {
                     const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
                         method: 'POST',
@@ -493,16 +488,16 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                     alert('Registro completado, pero ocurrió un error al intentar generar el PDF.');
                 }
 
-                // Reiniciar el formulario y redirigir
+                
                 this.reset();
-                // Limpiar las clases de validación después de resetear
+
                 this.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
                     el.classList.remove('is-valid', 'is-invalid');
                 });
-                // Asegúrate de que el select de grado se reinicie a su estado original/por defecto
-                setupGradeFiltering(); // Volver a llamar para restablecer las opciones del grado
 
-                window.location.href = '../index.html'; // Redirige a la página principal
+                setupGradeFiltering(); 
+
+                window.location.href = '../index.html'; 
             } catch (err) {
                 console.error("❌ Error general al guardar la matrícula:", err.message);
                 alert(`Hubo un error al guardar los datos de matrícula: ${err.message}. Por favor, revise la consola para más detalles.`);
