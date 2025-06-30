@@ -454,41 +454,9 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
                 console.log('✅ Datos de padres/tutor guardados.');
 
-                
-                try {
-                    const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (pdfResponse.ok) {
-                        const blob = await pdfResponse.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-
-                        const fileName = `ficha_matricula_${data.nombre || 'estudiante'}_${data.apellido1 || ''}.pdf`;
-                        a.download = fileName;
-                        document.body.appendChild(a);
-                        a.click();
-
-                        window.URL.revokeObjectURL(url);
-                        alert('✅ ¡Registro de matrícula completado y PDF generado con éxito!');
-                    } else {
-                        const errorText = await pdfResponse.text();
-                        console.error('❌ Error al generar el PDF:', errorText);
-                        alert(`Registro completado, pero hubo un error al generar el PDF: ${errorText}.`);
-                    }
-                } catch (pdfErr) {
-                    console.error('❌ Error de red o en la solicitud al generar PDF:', pdfErr);
-                    alert('Registro completado, pero ocurrió un error al intentar generar el PDF.');
-                }
-
-                
+             
+                console.log('✅ Todos los datos han sido guardados exitosamente.');
+                alert('¡Registro de matrícula completado con éxito!'); 
                 this.reset();
 
                 this.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
