@@ -594,71 +594,61 @@
               </div>
             </div>
 
-<!-- FORMULARIO CONTACTANOS -->
-<form action="https://formsubmit.co/odvinenriquerivera12345@gmail.com" method="POST" class="contact-form" target="hidden_iframe" id="contactForm">
-  <div class="row">
-    <div class="col-md-6">
-      <input type="text" name="name" id="name" placeholder="Nombre" required />
-    </div>
-    <div class="col-md-6">
-      <input type="email" name="email" id="email" placeholder="Correo" required />
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-6">
-      <input type="text" name="phone" id="phone" placeholder="Celular" required />
-    </div>
-    <div class="col-md-6">
-      <input type="text" name="subject" id="subject" placeholder="Asunto" required />
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12">
-      <textarea name="message" id="message" placeholder="Mensaje" rows="5"></textarea>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12">
-      <div class="button text-center rounded-buttons">
-        <button type="submit" class="btn primary-btn rounded-full">
-          Enviar Mensaje
-        </button>
+            <!-- FORMULARIO CONTACTANOS -->
+           <form action="https://formsubmit.co/odvinenriquerivera12345@gmail.com" method="POST" class="contact-form">
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="text" name="name" id="name" placeholder="Nombre" required />
+                </div>
+                <div class="col-md-6">
+                  <input type="email" name="email" id="email" placeholder="Correo" required />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="text" name="phone" id="phone" placeholder="Celular" required />
+                </div>
+                <div class="col-md-6">
+                  <input type="text" name="subject" id="email" placeholder="Asunto" required />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <textarea name="message" id="message" placeholder="Mensaje" rows="5"></textarea>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="button text-center rounded-buttons">
+                    <button type="submit" class="btn primary-btn rounded-full">
+                      Enviar Mensaje
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</form>
-
-<!-- IFRAME OCULTO para evitar redirección -->
-<iframe name="hidden_iframe" style="display:none;"></iframe>
-
-<!-- Mensaje de éxito -->
-<p id="success-message" style="display:none; color: green; text-align: center; margin-top: 20px;">
+    <p id="success-message" style="display:none; color: green; text-align: center; margin-top: 20px;">
   ¡Su mensaje ha sido enviado con éxito!
 </p>
+
   </section>
 
- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const contactForm = document.getElementById('contactForm');
-        const successMessage = document.getElementById('success-message');
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
 
-        contactForm.addEventListener('submit', function (event) {
-
-          setTimeout(() => {
-                contactForm.reset();
-                successMessage.style.display = 'block';
-
+            contactForm.addEventListener('submit', function(event) {
+               
                 setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000); 
-            }, 1000); 
+                    contactForm.reset();
+                }, 100); 
+            });
         });
-    });
-</script>
-
+    </script>
 </body>
 </html>
   <!-- ========================= contact-section end ========================= -->
