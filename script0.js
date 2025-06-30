@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (selectedNivel === 'Educación Inicial') {
                         filteredModalidadOptions = initialModalidadOptions.filter(option =>
-                            option.textContent === 'Preescolar-Formal'
+                            option.textContent === 'Preescolar-formal'
                         );
                     } else if (selectedNivel === 'Educación Primaria') {
                         filteredModalidadOptions = initialModalidadOptions.filter(option =>
