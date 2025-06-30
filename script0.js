@@ -13,10 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
             input.classList.add('is-invalid');
             input.classList.remove('is-valid');
         }
-const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app'
+        const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app'
 
 
-       
         function clearError(input) {
             const errorElement = input.nextElementSibling;
             if (errorElement && errorElement.classList.contains('error-message')) {
@@ -30,7 +29,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        
+
         function applyLettersOnlyValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function(event) {
@@ -57,7 +56,6 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        // Función para aplicar validación de teléfono (solo números y longitud exacta)
         function applyPhoneValidation(inputElement, exactLength, example) {
             if (inputElement) {
                 inputElement.addEventListener('input', function(event) {
@@ -99,7 +97,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        
+
         function applyCedulaValidation(inputElement) {
             if (inputElement) {
                 inputElement.addEventListener('input', function() {
@@ -149,7 +147,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-       
+
         function applyFloatValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function() {
@@ -179,60 +177,104 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
             }
         }
 
-        
-        function setupGradeFiltering() {
+        function setupGradeAndModalityFiltering() {
             const nivelEducativoSelect = document.getElementById('nivelEducativo');
             const gradoSelect = document.getElementById('grado');
+            const modalidadSelect = document.getElementById('modalidad'); 
 
-            if (nivelEducativoSelect && gradoSelect) {
-              
-                const initialOptions = Array.from(gradoSelect.options);
-
-                const filterGrades = () => {
+            if (nivelEducativoSelect && gradoSelect && modalidadSelect) { 
+                const initialGradoOptions = Array.from(gradoSelect.options);
+                const initialModalidadOptions = Array.from(modalidadSelect.options); 
+                const filterOptions = () => {
                     const selectedNivel = nivelEducativoSelect.value;
-                    gradoSelect.innerHTML = ''; 
 
-                    
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = '';
-                    defaultOption.textContent = 'Seleccione una opción'; 
-                    gradoSelect.appendChild(defaultOption);
+                    gradoSelect.innerHTML = '';
+                    const defaultGradoOption = document.createElement('option');
+                    defaultGradoOption.value = '';
+                    defaultGradoOption.textContent = 'Seleccione una opción';
+                    gradoSelect.appendChild(defaultGradoOption);
 
-                    let filteredOptions = [];
+                    let filteredGradoOptions = [];
 
-                    
                     if (selectedNivel === 'Educación Inicial') {
-                        filteredOptions = initialOptions.filter(option =>
+                        filteredGradoOptions = initialGradoOptions.filter(option =>
                             ['Primer Nivel', 'Segundo Nivel', 'Tercer Nivel'].includes(option.textContent)
                         );
                     } else if (selectedNivel === 'Educación Primaria') {
-                        filteredOptions = initialOptions.filter(option =>
+                        filteredGradoOptions = initialGradoOptions.filter(option =>
                             ['Primer grado', 'Segundo grado', 'Tercer grado', 'Cuarto grado', 'Quinto grado', 'Sexto grado'].includes(option.textContent)
                         );
                     } else if (selectedNivel === 'Educación Secundaria') {
-                        filteredOptions = initialOptions.filter(option =>
+                        filteredGradoOptions = initialGradoOptions.filter(option =>
                             ['Séptimo grado/Primer año', 'Octavo grado/Segundo año', 'Noveno grado/Tercer año', 'Décimo grado/Cuarto año', 'Undécimo grado/Quinto año'].includes(option.textContent)
                         );
-                    } else {
-                        
-                        return;
                     }
-
-                  
-                    filteredOptions.forEach(option => gradoSelect.appendChild(option.cloneNode(true)));
+                    filteredGradoOptions.forEach(option => gradoSelect.appendChild(option.cloneNode(true)));
                     gradoSelect.value = ''; 
+
+
+                    modalidadSelect.innerHTML = '';
+                    const defaultModalidadOption = document.createElement('option');
+                    defaultModalidadOption.value = '';
+                    defaultModalidadOption.textContent = 'Seleccione una opción';
+                    modalidadSelect.appendChild(defaultModalidadOption);
+
+                    let filteredModalidadOptions = [];
+
+                    if (selectedNivel === 'Educación Inicial') {
+                        filteredModalidadOptions = initialModalidadOptions.filter(option =>
+                            option.textContent === 'Preescolar-Formal'
+                        );
+                    } else if (selectedNivel === 'Educación Primaria') {
+                        filteredModalidadOptions = initialModalidadOptions.filter(option =>
+                            option.textContent === 'Primaria'
+                        );
+                    } else if (selectedNivel === 'Educación Secundaria') {
+                        filteredModalidadOptions = initialModalidadOptions.filter(option =>
+                            option.textContent === 'Secundaria'
+                        );
+                    }
+                    filteredModalidadOptions.forEach(option => modalidadSelect.appendChild(option.cloneNode(true)));
+                    modalidadSelect.value = ''; 
                 };
 
-               
-                nivelEducativoSelect.addEventListener('change', filterGrades);
+                nivelEducativoSelect.addEventListener('change', filterOptions);
 
-               
-                filterGrades();
+                filterOptions();
             }
         }
 
 
-      
+        function synchronizeLocationFields() {
+            const studentDepartmentSelect = document.getElementById('departamento');
+            const studentMunicipioSelect = document.getElementById('municipio');
+            const academicDepartmentSelect = document.getElementById('departamentoacad');
+            const academicMunicipioSelect = document.getElementById('municipioAcad');
+
+            if (studentDepartmentSelect && academicDepartmentSelect) {
+                studentDepartmentSelect.addEventListener('change', function() {
+                    academicDepartmentSelect.value = this.value;
+                    academicDepartmentSelect.dispatchEvent(new Event('change'));
+                    clearError(academicDepartmentSelect);
+                });
+            }
+
+            if (studentMunicipioSelect && academicMunicipioSelect) {
+                studentMunicipioSelect.addEventListener('change', function() {
+                    academicMunicipioSelect.value = this.value;
+                    clearError(academicMunicipioSelect);
+                });
+            }
+
+            if (studentDepartmentSelect && academicDepartmentSelect) {
+                academicDepartmentSelect.value = studentDepartmentSelect.value;
+            }
+            if (studentMunicipioSelect && academicMunicipioSelect) {
+                academicMunicipioSelect.value = studentMunicipioSelect.value;
+            }
+        }
+
+
         applyLettersOnlyValidation(document.getElementById('nombre'), 'Primer Nombre');
         applyLettersOnlyValidation(document.getElementById('segundoNombre'), 'Segundo Nombre');
         applyLettersOnlyValidation(document.getElementById('apellido1'), 'Primer Apellido');
@@ -245,7 +287,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
         applyLettersOnlyValidation(document.getElementById('territorioIndigena'), 'Territorio Indígena');
         applyLettersOnlyValidation(document.getElementById('habitaIndigena'), 'Habita Indígena');
 
-        
+
         applyLettersOnlyValidation(document.getElementById('nombreMadre'), 'Nombres y Apellidos de la madre');
         applyCedulaValidation(document.getElementById('cedulaMadre'));
         applyPhoneValidation(document.getElementById('telefonoMadre'), 8, '88887777');
@@ -258,11 +300,11 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
         applyCedulaValidation(document.getElementById('cedulaTutor'));
         applyPhoneValidation(document.getElementById('telefonoTutor'), 8, '88887777');
 
-        
-        setupGradeFiltering();
+
+        setupGradeAndModalityFiltering();
+        synchronizeLocationFields();
 
 
-       
         matriculaForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -277,14 +319,14 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
 
             let formIsValid = true;
 
-           
+
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly) {
                     input.dispatchEvent(new Event('blur'));
                 }
             });
 
-            
+
             const studentRequiredFields = ['telefono', 'direccion', 'nombre', 'apellido1', 'fechaNacimiento',
                 'genero', 'peso', 'talla', 'nacionalidad', 'paisNacimiento',
                 'departamento', 'municipio', 'lenguaMaterna', 'discapacidad'
@@ -297,7 +339,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
             }
 
-           
+
             const isMadreComplete = data.nombreMadre || data.cedulaMadre || data.telefonoMadre;
             const isPadreComplete = data.nombrePadre || data.cedulaPadre || data.telefonoPadre;
             const isTutorComplete = data.nombreTutor || data.cedulaTutor || data.telefonoTutor;
@@ -317,7 +359,7 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
             }
 
-            
+
             const academicRequiredFields = ['fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
                 'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad',
                 'turno', 'grado', 'seccion', 'repitente'
@@ -352,26 +394,31 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
             }
 
-            
+
             const invalidInputs = this.querySelectorAll('.is-invalid');
             if (invalidInputs.length > 0) {
                 formIsValid = false;
 
-                invalidInputs[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                invalidInputs[0].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
             }
 
-            
+
             if (!formIsValid) {
                 alert("Por favor, corrige todos los campos marcados con errores antes de enviar.");
                 return;
             }
 
-            
+
             try {
-                
+
                 const academicResponse = await fetch(`${BACKEND_URL}/api/academic`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         fechaMatricula: data.fechaMatricula,
                         departamento: data.departamentoacad,
@@ -397,10 +444,12 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 const matriculaId = academicResult.id;
                 console.log('✅ Datos académicos guardados. ID de Matrícula:', matriculaId);
 
-            
+
                 const studentResponse = await fetch(`${BACKEND_URL}/api/student`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         matriculaId: matriculaId,
                         telefono: data.telefono,
@@ -430,10 +479,12 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
                 console.log('✅ Datos del estudiante guardados.');
 
-                
+
                 const parentResponse = await fetch(`${BACKEND_URL}/api/parent`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         matriculaId: matriculaId,
                         nombreMadre: data.nombreMadre,
@@ -454,18 +505,19 @@ const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin12
                 }
                 console.log('✅ Datos de padres/tutor guardados.');
 
-             
+
                 console.log('✅ Todos los datos han sido guardados exitosamente.');
-                alert('¡Registro de matrícula completado con éxito!'); 
+                alert('¡Registro de matrícula completado con éxito!');
                 this.reset();
 
                 this.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
                     el.classList.remove('is-valid', 'is-invalid');
                 });
 
-                setupGradeFiltering(); 
+                setupGradeAndModalityFiltering();
+                synchronizeLocationFields(); 
 
-                window.location.href = '../index.html'; 
+                window.location.href = '../index.html';
             } catch (err) {
                 console.error("❌ Error general al guardar la matrícula:", err.message);
                 alert(`Hubo un error al guardar los datos de matrícula: ${err.message}. Por favor, revise la consola para más detalles.`);
