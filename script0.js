@@ -30,6 +30,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 
+               function setFechaMatriculaToday() {
+            const fechaMatriculaInput = document.getElementById('fechaMatricula');
+            if (fechaMatriculaInput) {
+                const today = new Date();
+                const day = String(today.getDate()).padStart(2, '0');
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
+                const year = today.getFullYear();
+                fechaMatriculaInput.value = `${day}/${month}/${year}`; // Formato DD/MM/AAAA
+                clearError(fechaMatriculaInput); // Asegurarse de que no muestre error por estar vacío
+            }
+        }
+
+
         function applyLettersOnlyValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function(event) {
