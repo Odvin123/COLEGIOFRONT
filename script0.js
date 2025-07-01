@@ -37,10 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (fechaMatriculaInput) {
                 const today = new Date();
                 const day = String(today.getDate()).padStart(2, '0');
-                const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
+                const month = String(today.getMonth() + 1).padStart(2, '0'); 
                 const year = today.getFullYear();
-                fechaMatriculaInput.value = `${day}/${month}/${year}`; // Formato DD/MM/AAAA
-                clearError(fechaMatriculaInput); // Asegurarse de que no muestre error por estar vacío
+                fechaMatriculaInput.value = `${day}/${month}/${year}`; 
+                clearError(fechaMatriculaInput); 
             }
         }
 
@@ -203,12 +203,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     paisNacimientoInput.readOnly = false;
                     paisNacimientoInput.placeholder = '';
                 }
-                clearError(paisNacimientoInput); // Limpiar error al cambiar de opción
+                clearError(paisNacimientoInput);
             };
 
             if (nacionalidadSelect && paisNacimientoInput) {
                 nacionalidadSelect.addEventListener('change', updatePaisNacimiento);
-                updatePaisNacimiento(); // Establecer estado inicial
+                updatePaisNacimiento(); 
             }
         }
 
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const filterOptions = () => {
                     const selectedNivel = nivelEducativoSelect.value;
 
-                    // Filtrar y mostrar opciones de Grado
+                    
                     gradoSelect.innerHTML = '';
                     const defaultGradoOption = document.createElement('option');
                     defaultGradoOption.value = '';
@@ -247,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     filteredGradoOptions.forEach(option => gradoSelect.appendChild(option.cloneNode(true)));
                     gradoSelect.value = ''; 
 
-                    // Establecer modalidad automáticamente
                     if (selectedNivel === 'Educación Inicial') {
                         modalidadInput.value = 'Preescolar-formal';
                     } else if (selectedNivel === 'Educación Primaria') {
@@ -257,11 +256,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         modalidadInput.value = '';
                     }
-                    clearError(modalidadInput); // Limpiar cualquier error previo
+                    clearError(modalidadInput); 
                 };
 
                 nivelEducativoSelect.addEventListener('change', filterOptions);
-                filterOptions(); // Ejecutar al cargar para establecer el estado inicial
+                filterOptions(); 
             }
         }
 
@@ -282,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (studentDepartmentSelect && studentMunicipioSelect && academicDepartmentInput && academicMunicipioInput) {
                 studentDepartmentSelect.addEventListener('change', updateAcademicLocation);
                 studentMunicipioSelect.addEventListener('change', updateAcademicLocation);
-                updateAcademicLocation(); // Set initial values on load
+                updateAcademicLocation();
             }
         }
 
@@ -325,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let [key, value] of formData.entries()) {
                 data[key] = value.trim();
             }
-            // Asegura que los valores de radio buttons se obtengan correctamente
+            
             data.turno = document.querySelector('input[name="turno"]:checked')?.value || '';
             data.repitente = document.querySelector('input[name="repitente"]:checked')?.value || '';
 
@@ -334,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly) {
-                    // Trigger blur to show validation messages for required fields on submit
+                    
                     const event = new Event('blur');
                     input.dispatchEvent(event);
                     if (input.classList.contains('is-invalid')) {
@@ -430,9 +429,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             try {
-                // Show loading indicator
+                
                 document.getElementById('loadingIndicator').style.display = 'block';
-                document.getElementById('formSuccessMessage').style.display = 'none';
+                 document.getElementById('formSuccessMessage').textContent = '¡Matrícula Generada Exitosamente! 🎉'; 
                 document.getElementById('formErrorMessage').style.display = 'none';
 
 
@@ -527,37 +526,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 console.log('✅ Datos de padres/tutor guardados.');
 
-                // Hide loading indicator and show success message
                 document.getElementById('loadingIndicator').style.display = 'none';
                 document.getElementById('formSuccessMessage').textContent = '¡Registro de matrícula completado con éxito!';
                 document.getElementById('formSuccessMessage').style.display = 'block';
 
 
                 console.log('✅ Todos los datos han sido guardados exitosamente.');
-                this.reset(); // Restablece el formulario
-                // Restablecer las clases de validación
+                this.reset(); 
+              
                 this.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
                     el.classList.remove('is-valid', 'is-invalid');
                 });
-                // Vuelve a aplicar la lógica de filtros y sincronización
                 setupGradeAndModalityFiltering();
                 synchronizeLocationFields(); 
                 setupNationalityDependentFields();
 
-                // Clear specific error messages
                 const errorMessage = document.getElementById('error-message');
                 if (errorMessage) {
                     errorMessage.style.display = 'none';
                     errorMessage.textContent = "";
                 }
 
-                // Redirect after a short delay to allow the user to see the success message
                 setTimeout(() => {
                     window.location.href = '../index.html';
                 }, 2000); 
 
             } catch (err) {
-                // Hide loading indicator and show error message
+
                 document.getElementById('loadingIndicator').style.display = 'none';
                 document.getElementById('formErrorMessage').textContent = `Hubo un error al guardar los datos de matrícula: ${err.message}. Por favor, revise la consola para más detalles.`;
                 document.getElementById('formErrorMessage').style.display = 'block';
