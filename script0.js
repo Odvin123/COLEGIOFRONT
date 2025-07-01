@@ -148,27 +148,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 
-        function applyFloatValidation(inputElement, fieldName) {
+        function applyPositiveNumberValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function() {
-                    const inputValue = this.value;
-                    const sanitizedValue = inputValue.replace(/[^0-9.]/g, '');
-                    this.value = sanitizedValue;
-
-                    if (inputValue !== sanitizedValue) {
-                        showError(this, `Solo se permiten números y decimales para ${fieldName}. Ejemplo: 60.5`);
-                    } else if (sanitizedValue.split('.').length > 2) {
-                        showError(this, `Formato incorrecto para ${fieldName}. Solo un punto decimal permitido. Ejemplo: 60.5`);
+                    let value = parseFloat(this.value);
+                    if (isNaN(value) || value <= 0) {
+                        showError(this, `El campo ${fieldName} debe ser un número positivo mayor que 0.`);
                     } else {
                         clearError(this);
                     }
                 });
-
                 inputElement.addEventListener('blur', function() {
-                    if (this.value.trim() === '') {
-                        clearError(this);
-                    } else if (isNaN(parseFloat(this.value)) || !/^\d+(\.\d+)?$/.test(this.value)) {
-                        showError(this, `Formato incorrecto para ${fieldName}. Solo se permiten números y decimales. Ejemplo: 60.5`);
+                    let value = parseFloat(this.value);
+                    if (isNaN(value) || value <= 0) {
+                        showError(this, `El campo ${fieldName} debe ser un número positivo mayor que 0.`);
                     } else {
                         clearError(this);
                         this.classList.add('is-valid');
@@ -177,17 +170,45 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        function setupNationalityDependentFields() {
+            const nacionalidadSelect = document.getElementById('nacionalidad');
+            const paisNacimientoInput = document.getElementById('paisNacimiento');
+
+            const updatePaisNacimiento = () => {
+                if (nacionalidadSelect.value === 'Nicaragüense') {
+                    paisNacimientoInput.value = 'Nicaragua';
+                    paisNacimientoInput.readOnly = true;
+                    clearError(paisNacimientoInput);
+                } else if (nacionalidadSelect.value === 'Extranjero') {
+                    paisNacimientoInput.value = '';
+                    paisNacimientoInput.readOnly = false;
+                    paisNacimientoInput.placeholder = 'Ingrese el país de nacimiento';
+                } else {
+                    paisNacimientoInput.value = '';
+                    paisNacimientoInput.readOnly = false;
+                    paisNacimientoInput.placeholder = '';
+                }
+                clearError(paisNacimientoInput); // Limpiar error al cambiar de opción
+            };
+
+            if (nacionalidadSelect && paisNacimientoInput) {
+                nacionalidadSelect.addEventListener('change', updatePaisNacimiento);
+                updatePaisNacimiento(); // Establecer estado inicial
+            }
+        }
+
         function setupGradeAndModalityFiltering() {
             const nivelEducativoSelect = document.getElementById('nivelEducativo');
             const gradoSelect = document.getElementById('grado');
-            const modalidadSelect = document.getElementById('modalidad'); 
+            const modalidadInput = document.getElementById('modalidad'); 
 
-            if (nivelEducativoSelect && gradoSelect && modalidadSelect) { 
+            if (nivelEducativoSelect && gradoSelect && modalidadInput) { 
                 const initialGradoOptions = Array.from(gradoSelect.options);
-                const initialModalidadOptions = Array.from(modalidadSelect.options); 
+                
                 const filterOptions = () => {
                     const selectedNivel = nivelEducativoSelect.value;
 
+                    // Filtrar y mostrar opciones de Grado
                     gradoSelect.innerHTML = '';
                     const defaultGradoOption = document.createElement('option');
                     defaultGradoOption.value = '';
@@ -195,7 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     gradoSelect.appendChild(defaultGradoOption);
 
                     let filteredGradoOptions = [];
-
                     if (selectedNivel === 'Educación Inicial') {
                         filteredGradoOptions = initialGradoOptions.filter(option =>
                             ['Primer Nivel', 'Segundo Nivel', 'Tercer Nivel'].includes(option.textContent)
@@ -212,35 +232,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     filteredGradoOptions.forEach(option => gradoSelect.appendChild(option.cloneNode(true)));
                     gradoSelect.value = ''; 
 
-
-                    modalidadSelect.innerHTML = '';
-                    const defaultModalidadOption = document.createElement('option');
-                    defaultModalidadOption.value = '';
-                    defaultModalidadOption.textContent = 'Seleccione una opción';
-                    modalidadSelect.appendChild(defaultModalidadOption);
-
-                    let filteredModalidadOptions = [];
-
+                    // Establecer modalidad automáticamente
                     if (selectedNivel === 'Educación Inicial') {
-                        filteredModalidadOptions = initialModalidadOptions.filter(option =>
-                            option.textContent === 'Preescolar-formal'
-                        );
+                        modalidadInput.value = 'Preescolar-formal';
                     } else if (selectedNivel === 'Educación Primaria') {
-                        filteredModalidadOptions = initialModalidadOptions.filter(option =>
-                            option.textContent === 'Primaria'
-                        );
+                        modalidadInput.value = 'Primaria';
                     } else if (selectedNivel === 'Educación Secundaria') {
-                        filteredModalidadOptions = initialModalidadOptions.filter(option =>
-                            option.textContent === 'Secundaria'
-                        );
+                        modalidadInput.value = 'Secundaria';
+                    } else {
+                        modalidadInput.value = '';
                     }
-                    filteredModalidadOptions.forEach(option => modalidadSelect.appendChild(option.cloneNode(true)));
-                    modalidadSelect.value = ''; 
+                    clearError(modalidadInput); // Limpiar cualquier error previo
                 };
 
                 nivelEducativoSelect.addEventListener('change', filterOptions);
-
-                filterOptions();
+                filterOptions(); // Ejecutar al cargar para establecer el estado inicial
             }
         }
 
@@ -248,29 +254,20 @@ document.addEventListener('DOMContentLoaded', function() {
         function synchronizeLocationFields() {
             const studentDepartmentSelect = document.getElementById('departamento');
             const studentMunicipioSelect = document.getElementById('municipio');
-            const academicDepartmentSelect = document.getElementById('departamentoacad');
-            const academicMunicipioSelect = document.getElementById('municipioAcad');
+            const academicDepartmentInput = document.getElementById('departamentoacad');
+            const academicMunicipioInput = document.getElementById('municipioAcad');
 
-            if (studentDepartmentSelect && academicDepartmentSelect) {
-                studentDepartmentSelect.addEventListener('change', function() {
-                    academicDepartmentSelect.value = this.value;
-                    academicDepartmentSelect.dispatchEvent(new Event('change'));
-                    clearError(academicDepartmentSelect);
-                });
-            }
+            const updateAcademicLocation = () => {
+                academicDepartmentInput.value = studentDepartmentSelect.value;
+                academicMunicipioInput.value = studentMunicipioSelect.value;
+                clearError(academicDepartmentInput);
+                clearError(academicMunicipioInput);
+            };
 
-            if (studentMunicipioSelect && academicMunicipioSelect) {
-                studentMunicipioSelect.addEventListener('change', function() {
-                    academicMunicipioSelect.value = this.value;
-                    clearError(academicMunicipioSelect);
-                });
-            }
-
-            if (studentDepartmentSelect && academicDepartmentSelect) {
-                academicDepartmentSelect.value = studentDepartmentSelect.value;
-            }
-            if (studentMunicipioSelect && academicMunicipioSelect) {
-                academicMunicipioSelect.value = studentMunicipioSelect.value;
+            if (studentDepartmentSelect && studentMunicipioSelect && academicDepartmentInput && academicMunicipioInput) {
+                studentDepartmentSelect.addEventListener('change', updateAcademicLocation);
+                studentMunicipioSelect.addEventListener('change', updateAcademicLocation);
+                updateAcademicLocation(); // Set initial values on load
             }
         }
 
@@ -280,9 +277,8 @@ document.addEventListener('DOMContentLoaded', function() {
         applyLettersOnlyValidation(document.getElementById('apellido1'), 'Primer Apellido');
         applyLettersOnlyValidation(document.getElementById('apellido2'), 'Segundo Apellido');
         applyPhoneValidation(document.getElementById('telefono'), 8, '88887777');
-        applyFloatValidation(document.getElementById('peso'), 'peso');
-        applyFloatValidation(document.getElementById('talla'), 'talla');
-        applyLettersOnlyValidation(document.getElementById('nacionalidad'), 'Nacionalidad');
+        applyPositiveNumberValidation(document.getElementById('peso'), 'peso');
+        applyPositiveNumberValidation(document.getElementById('talla'), 'talla');
         applyLettersOnlyValidation(document.getElementById('paisNacimiento'), 'País de Nacimiento');
         applyLettersOnlyValidation(document.getElementById('territorioIndigena'), 'Territorio Indígena');
         applyLettersOnlyValidation(document.getElementById('habitaIndigena'), 'Habita Indígena');
@@ -301,6 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyPhoneValidation(document.getElementById('telefonoTutor'), 8, '88887777');
 
 
+        setupNationalityDependentFields();
         setupGradeAndModalityFiltering();
         synchronizeLocationFields();
 
@@ -322,7 +319,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly) {
-                    input.dispatchEvent(new Event('blur'));
+                    // Trigger blur to show validation messages for required fields on submit
+                    const event = new Event('blur');
+                    input.dispatchEvent(event);
+                    if (input.classList.contains('is-invalid')) {
+                        formIsValid = false;
+                    }
                 }
             });
 
@@ -413,6 +415,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             try {
+                // Show loading indicator
+                document.getElementById('loadingIndicator').style.display = 'block';
+                document.getElementById('formSuccessMessage').style.display = 'none';
+                document.getElementById('formErrorMessage').style.display = 'none';
+
 
                 const academicResponse = await fetch(`${BACKEND_URL}/api/academic`, {
                     method: 'POST',
@@ -505,22 +512,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 console.log('✅ Datos de padres/tutor guardados.');
 
+                // Hide loading indicator and show success message
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('formSuccessMessage').textContent = '¡Registro de matrícula completado con éxito!';
+                document.getElementById('formSuccessMessage').style.display = 'block';
+
 
                 console.log('✅ Todos los datos han sido guardados exitosamente.');
-                alert('¡Registro de matrícula completado con éxito!');
-                this.reset();
-
+                this.reset(); // Restablece el formulario
+                // Restablecer las clases de validación
                 this.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
                     el.classList.remove('is-valid', 'is-invalid');
                 });
-
+                // Vuelve a aplicar la lógica de filtros y sincronización
                 setupGradeAndModalityFiltering();
                 synchronizeLocationFields(); 
+                setupNationalityDependentFields();
 
-                window.location.href = '../index.html';
+                // Clear specific error messages
+                const errorMessage = document.getElementById('error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'none';
+                    errorMessage.textContent = "";
+                }
+
+                // Redirect after a short delay to allow the user to see the success message
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000); 
+
             } catch (err) {
+                // Hide loading indicator and show error message
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('formErrorMessage').textContent = `Hubo un error al guardar los datos de matrícula: ${err.message}. Por favor, revise la consola para más detalles.`;
+                document.getElementById('formErrorMessage').style.display = 'block';
+
                 console.error("❌ Error general al guardar la matrícula:", err.message);
-                alert(`Hubo un error al guardar los datos de matrícula: ${err.message}. Por favor, revise la consola para más detalles.`);
             }
         });
     }

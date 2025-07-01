@@ -33,19 +33,30 @@
             font-size: 1.2em;
             color: #007bff;
         }
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: block;
+        }
+        .is-invalid {
+            border-color: red;
+        }
+        .is-valid {
+            border-color: green;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Formulario de Matrícula</h2>
 
-      
         <div id="formSuccessMessage" class="custom-alert success"></div>
         <div id="formErrorMessage" class="custom-alert error"></div>
         <div id="loadingIndicator" class="loading-indicator">Cargando... por favor espera.</div>
 
         <form id="matriculaForm">
-           
+            
             <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
             <label for="telefono">Teléfono:</label>
             <input type="tel" id="telefono" name="telefono" required>
@@ -75,35 +86,39 @@
             </select>
 
             <label for="peso">Peso (kg):</label>
-            <input type="number" id="peso" name="peso" required>
+            <input type="number" id="peso" name="peso" step="0.01" required min="0.01">
 
             <label for="talla">Talla (cm):</label>
-            <input type="number" id="talla" name="talla" required>
+            <input type="number" id="talla" name="talla" step="0.01" required min="0.01">
 
             <label for="nacionalidad">Nacionalidad:</label>
-            <input type="text" id="nacionalidad" name="nacionalidad" required>
+            <select id="nacionalidad" name="nacionalidad" required>
+                <option value="">Seleccione una opción</option>
+                <option value="Nicaragüense">Nicaragüense</option>
+                <option value="Extranjero">Extranjero</option>
+            </select>
 
             <label for="paisNacimiento">País de Nacimiento:</label>
             <input type="text" id="paisNacimiento" name="paisNacimiento" required>
 
-                <label for="departamento">Departamento:</label>
-                <select id="departamento" name="departamento" required>
-                    <option value="">Seleccione un departamento</option>
+            <label for="departamento">Departamento:</label>
+            <select id="departamento" name="departamento" required>
+                <option value="">Seleccione un departamento</option>
                 <option value="Managua">Managua</option>
             </select>
 
             <label for="municipio">Municipio/Distrito:</label>
             <select id="municipio" name="municipio" required>
                 <option value="">Seleccione un municipio</option>
-                   <option value="Managua">Managua</option>
-                   <option value="Ciudad Sandino">Ciudad Sandino</option>
-                   <option value="Villa el Carmen">Villa el Carmen</option>
-                   <option value="El Crucero">El Crucero</option>
-                   <option value="Tipitapa">Tipitapa</option>
-                   <option value="Ticuantepe">Ticuantepe</option>
-                   <option value="Mateare">Mateare</option>
-                   <option value="San Reafael del Sur">San Reafael del Sur</option>
-                   <option value="San Fransisco Libre">San Fransisco Libre</option>
+                <option value="Managua">Managua</option>
+                <option value="Ciudad Sandino">Ciudad Sandino</option>
+                <option value="Villa el Carmen">Villa el Carmen</option>
+                <option value="El Crucero">El Crucero</option>
+                <option value="Tipitapa">Tipitapa</option>
+                <option value="Ticuantepe">Ticuantepe</option>
+                <option value="Mateare">Mateare</option>
+                <option value="San Reafael del Sur">San Reafael del Sur</option>
+                <option value="San Fransisco Libre">San Fransisco Libre</option>
             </select>
 
             <label for="lenguaMaterna">Lengua Materna:</label>
@@ -138,9 +153,6 @@
             <label for="habitaIndigena">¿El estudiante habita en territorio indígena? ¿Cuál?:</label>
             <input type="text" id="habitaIndigena" name="habitaIndigena">
 
-            <!-- DATOS PERSONALES DE LOS PADRES O TUTOR -->
-
-
             <h3>DATOS PERSONALES DE LOS PADRES O TUTOR</h3>
             <p style="color: red; text-align: center; display: none;" id="error-message">Debe completar al menos un conjunto de datos (madre, padre o tutor).</p>
 
@@ -171,29 +183,15 @@
             <label for="telefonoTutor">Teléfono del tutor (solo números):</label>
             <input type="tel" id="telefonoTutor" name="telefonoTutor" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
 
-            <!-- DATOS ACADÉMICOS DEL ESTUDIANTE -->
             <h3>DATOS ACADÉMICOS DEL ESTUDIANTE</h3>
             <label for="fechaMatricula">Fecha de matrícula del estudiante:</label>
             <input type="date" id="fechaMatricula" name="fechaMatricula" required>
 
             <label for="departamentoacad">Departamento del que proviene:</label>
-            <select id="departamentoacad" name="departamentoacad" required>
-                <option value="">Seleccione un departamento</option>
-                <option value="Managua">Managua</option>
-            </select>
+            <input type="text" id="departamentoacad" name="departamentoacad" readonly required>
 
             <label for="municipioAcad">Municipio/Distrito:</label>
-            <select id="municipioAcad" name="municipioAcad" required> <option value="">Seleccione un municipio</option>
-            <option value="Managua">Managua</option>
-           <option value="Ciudad Sandino">Ciudad Sandino</option>
-                <option value="Villa el Carmen">Villa el Carmen</option>
-                <option value="El Crucero">El Crucero</option>
-                <option value="Tipitapa">Tipitapa</option>
-                <option value="Ticuantepe">Ticuantepe</option>
-                <option value="Mateare">Mateare</option>
-                <option value="San Reafael del Sur">San Reafael del Sur</option>
-                <option value="San Fransisco Libre">San Fransisco Libre</option>
-        </select>
+            <input type="text" id="municipioAcad" name="municipioAcad" readonly required>
 
             <label for="codigoUnico">Código único del establecimiento:</label>
             <input type="text" id="codigoUnico" name="codigoUnico" value="14432" readonly required>
@@ -213,12 +211,7 @@
             </select>
 
             <label for="modalidad">Modalidad:</label>
-            <select id="modalidad" name="modalidad" required>
-                <option value="">Seleccione una modalidad</option>
-                <option value="Preescolar-formal">Preescolar-formal</option>
-                <option value="Primaria">Primaria</option>
-                <option value="Secundaria">Secundaria</option>
-            </select>
+            <input type="text" id="modalidad" name="modalidad" readonly required>
 
             <label>Turno:</label>
             <div>
@@ -269,15 +262,14 @@
                 <label><input type="radio" name="repitente" value="No"> No</label>
             </div>
 
-           
+            
             <button type="submit">Registrar</button>
         </form>
     </div>
 
     
     <script>
-        
-     window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
+        window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
     </script>
     <script src="script0.js"></script>
 </body>
