@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app'
 
+         setFechaMatriculaToday(); 
+
 
         function clearError(input) {
             const errorElement = input.nextElementSibling;
