@@ -2,6 +2,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const matriculaForm = document.getElementById('matriculaForm');
     if (matriculaForm) {
 
+        // --- Inyección de estilos CSS para el mensaje de éxito ---
+        const style = document.createElement('style');
+        style.textContent = `
+            @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); /* Fuente "bonita" */
+
+            .alert-float {
+                position: fixed;
+                top: 50%; /* Centra verticalmente */
+                left: 50%; /* Centra horizontalmente */
+                transform: translate(-50%, -50%); /* Ajuste para centrado perfecto */
+                background-color: #28a745; /* Verde Bootstrap success */
+                color: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 1050; /* Por encima de la mayoría de los elementos */
+                opacity: 0; /* Inicialmente oculto */
+                transition: opacity 0.5s ease-in-out;
+                font-family: 'Pacifico', cursive; /* Aplica la fuente */
+                font-size: 1.5em;
+                text-align: center; /* Centra el texto */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px; /* Espacio entre el texto y el emoji */
+            }
+
+            .alert-float.success-visible {
+                opacity: 1; /* Visible cuando tiene la clase success-visible */
+            }
+
+            .alert-float .emoji {
+                font-size: 1.8em; /* Tamaño del emoji */
+            }
+        `;
+        document.head.appendChild(style);
+        // --- Fin de la inyección de estilos CSS ---
+
+
         function showError(input, message) {
             let errorElement = input.nextElementSibling;
             if (!errorElement || !errorElement.classList.contains('error-message')) {
@@ -40,8 +79,70 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearError(fechaMatriculaInput);
             }
         }
+        
+        // --- Nueva función para limpiar el formulario ---
+        function clearForm() {
+            matriculaForm.reset(); // Restablece todos los campos del formulario a sus valores iniciales
 
-       
+            // Quita las clases de validación (is-valid, is-invalid) de todos los inputs
+            document.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+                el.classList.remove('is-valid', 'is-invalid');
+            });
+
+            // Elimina todos los mensajes de error
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.remove();
+            });
+
+            // Asegúrate de que los campos dependientes y deshabilitados se restablezcan correctamente
+            const fechaMatriculaInput = document.getElementById('fechaMatricula');
+            if (fechaMatriculaInput) {
+                setFechaMatriculaToday(); // Vuelve a establecer la fecha actual
+            }
+
+            const paisNacimientoInput = document.getElementById('paisNacimiento');
+            const nacionalidadSelect = document.getElementById('nacionalidad');
+            if (nacionalidadSelect && paisNacimientoInput) {
+                nacionalidadSelect.value = ''; // Restablece la nacionalidad para recalcular país de nacimiento
+                // Dispara un cambio para que la lógica de setupNationalityDependentFields actualice paisNacimiento
+                const event = new Event('change');
+                nacionalidadSelect.dispatchEvent(event);
+            }
+
+            const nivelEducativoSelect = document.getElementById('nivelEducativo');
+            if (nivelEducativoSelect) {
+                nivelEducativoSelect.value = ''; // Restablece el nivel educativo
+                const event = new Event('change');
+                nivelEducativoSelect.dispatchEvent(event); // Para restablecer grado y modalidad
+            }
+
+            // Restablecer los campos de identificación y sus estados deshabilitados
+            ['Madre', 'Padre', 'Tutor'].forEach(role => {
+                const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
+                const cedulaInput = document.getElementById(`cedula${role}`);
+                if (typeSelect) {
+                    typeSelect.value = ''; // Restablece la selección de tipo de identificación
+                    if (cedulaInput) {
+                        cedulaInput.disabled = true; // Deshabilita la cédula por defecto
+                        cedulaInput.value = ''; // Limpia el valor de la cédula
+                        clearError(cedulaInput); // Asegura que no queden errores de cédula
+                    }
+                }
+            });
+
+            // Ocultar cualquier mensaje de error global
+            const errorMessageElement = document.getElementById('error-message');
+            if (errorMessageElement) {
+                errorMessageElement.style.display = 'none';
+                errorMessageElement.textContent = '';
+            }
+
+            // Restablecer las opciones de radio
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+        }
+        // --- Fin de la función clearForm ---
+
+
         function applyLettersOnlyValidation(inputElement, fieldName) {
             if (inputElement) {
                 inputElement.addEventListener('input', function(event) {
@@ -158,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 typeSelectElement.addEventListener('change', validateCedula);
                 cedulaInputElement.addEventListener('input', validateCedula);
                 cedulaInputElement.addEventListener('blur', validateCedula);
-                validateCedula(); 
+                validateCedula(); // Ejecutar al cargar para configurar el estado inicial
             }
         }
 
@@ -314,8 +415,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         applyLettersOnlyValidation(document.getElementById('territorioIndigenaEstudiante'), 'Territorio Indígena');
         applyLettersOnlyValidation(document.getElementById('habitaIndigenaEstudiante'), 'Habita Indígena');
-
-
     
         applyLettersOnlyValidation(document.getElementById('primerNombreMadre'), 'Primer Nombre de la Madre');
         applyLettersOnlyValidation(document.getElementById('segundoNombreMadre'), 'Segundo Nombre de la Madre');
@@ -358,30 +457,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let formIsValid = true;
 
+            // Limpiar errores y clases de validación existentes antes de re-validar
             document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
 
+            // Disparar blur en todos los inputs para activar validaciones en tiempo real
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly && !input.disabled) { 
                     const event = new Event('blur');
                     input.dispatchEvent(event);
                 }
             });
+
+            // Re-validación específica para cédulas que dependen del tipo de identificación
             ['Madre', 'Padre', 'Tutor'].forEach(role => {
                 const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
                 const cedulaInput = document.getElementById(`cedula${role}`);
                 if (typeSelect && cedulaInput) {
+                    // Re-ejecutar la validación de cédula para asegurar el estado correcto
                     applyCedulaValidation(typeSelect, cedulaInput); 
-                    if (typeSelect.value === 'Cedula Nicaraguense' && cedulaInput.value.trim() !== '' && !/^\d{3}-\d{6}-\d{4}[A-Z]$/.test(cedulaInput.value)) {
-                         showError(cedulaInput, 'Formato de cédula nicaragüense incorrecto. Debe ser XXX-XXXXXX-XXXXA. Ejemplo: 123-456789-0123A');
-                    } else if (typeSelect.value !== '' && cedulaInput.value.trim() === '' && !cedulaInput.disabled) {
+                    
+                    // Si se seleccionó un tipo de identificación y el campo de cédula está vacío y no está deshabilitado
+                    if (typeSelect.value !== '' && cedulaInput.value.trim() === '' && !cedulaInput.disabled) {
                         showError(cedulaInput, 'Este campo es obligatorio cuando se selecciona un tipo de identificación.');
+                        formIsValid = false;
                     }
                 }
             });
 
-          
+            // Validar campos obligatorios del estudiante
             const studentRequiredFields = ['telefono', 'direccion', 'primerNombre', 'primerApellido', 'fechaNacimiento',
                 'genero', 'peso', 'talla', 'nacionalidad', 'paisNacimiento',
                 'residenciaDepartamento', 'residenciaMunicipio', 'lenguaMaterna', 'discapacidad'
@@ -394,11 +499,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
+            // Validar que al menos un conjunto de datos de contacto esté completo
             const isMadreComplete = data.primerNombreMadre || data.segundoNombreMadre || data.primerApellidoMadre || data.segundoApellidoMadre || data.tipoIdentificacionMadre || data.cedulaMadre || data.telefonoMadre;
             const isPadreComplete = data.primerNombrePadre || data.segundoNombrePadre || data.primerApellidoPadre || data.segundoApellidoPadre || data.tipoIdentificacionPadre || data.cedulaPadre || data.telefonoPadre;
             const isTutorComplete = data.primerNombreTutor || data.segundoNombreTutor || data.primerApellidoTutor || data.segundoApellidoTutor || data.tipoIdentificacionTutor || data.cedulaTutor || data.telefonoTutor;
 
-            const errorMessageElement = document.getElementById('error-message');
+            const errorMessageElement = document.getElementById('error-message'); // El div donde se muestra el mensaje global
 
             if (!isMadreComplete && !isPadreComplete && !isTutorComplete) {
                 if (errorMessageElement) {
@@ -413,6 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
+            // Validar campos obligatorios académicos
             const academicRequiredFields = ['fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
                 'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad',
                 'turno', 'grado', 'seccion', 'repitente'
@@ -438,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const parentDiv = radioGroup[0].closest('div');
                         if (parentDiv) {
                             const errorSpan = parentDiv.querySelector('.error-message');
-                            if (errorSpan) errorSpan.remove();
+                            if (errorSpan) errorSpan.remove(); // Limpia el error si ya está checked
                         }
                     }
                 } else if (inputElement && data[fieldName] === '' && !inputElement.readOnly) { 
@@ -448,6 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
 
+            // Si hay algún campo inválido visible, hacer scroll a él
             const invalidInputs = this.querySelectorAll('.is-invalid');
             if (invalidInputs.length > 0) {
                 formIsValid = false;
@@ -572,24 +680,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('✅ Datos de padres/tutor guardados.');
 
                 document.getElementById('loadingIndicator').style.display = 'none';
-                document.getElementById('formSuccessMessage').textContent = '¡Registro de matrícula completado con éxito!';
-                document.getElementById('formSuccessMessage').style.display = 'block';
+                document.getElementById('formSuccessMessage').textContent = ''; 
+                document.getElementById('formSuccessMessage').style.display = 'none';
                 console.log('✅ Todos los datos han sido guardados exitosamente.');
 
-                    this.reset(); 
-
-
+                // Crear y mostrar la alerta flotante con emoji y estilo
                 const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert-float success'; 
-                alertDiv.textContent = '¡Registro de Matrícula Exitoso!';
+                alertDiv.className = 'alert-float'; 
+                alertDiv.innerHTML = '<span class="emoji">🎉</span> <span>¡Matrícula Exitosa!</span>'; // Incluye el emoji
                 document.body.appendChild(alertDiv);
 
-                setTimeout(() => {
-                    alertDiv.remove();
-                    clearForm(); 
-                    window.location.href = '../index.html'; 
-                }, 3000); 
+                // Forzar un reflow para que la transición de opacidad funcione
+                void alertDiv.offsetWidth; 
+                alertDiv.classList.add('success-visible'); // Activa la visibilidad con la transición
 
+                // Ocultar la alerta, limpiar el formulario y redirigir
+                setTimeout(() => {
+                    alertDiv.classList.remove('success-visible'); // Inicia la transición de ocultamiento
+                    setTimeout(() => {
+                        alertDiv.remove(); // Elimina la alerta del DOM una vez oculta
+                        clearForm(); // Llama a la función para limpiar el formulario
+                        window.location.href = '../index.html'; // Redirige al index principal
+                    }, 500); // Espera la duración de la transición de opacidad antes de eliminar/redirigir
+                }, 3000); // Muestra el mensaje de éxito por 3 segundos
 
             } catch (error) {
                 console.error('❌ Error al enviar el formulario:', error);
