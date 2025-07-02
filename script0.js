@@ -63,6 +63,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.classList.remove('is-valid');
             }
         }
+          function validateParentOrTutorFields(role) {
+            const fields = [
+                `primerNombre${role}`,
+                `segundoNombre${role}`,
+                `primerApellido${role}`,
+                `segundoApellido${role}`,
+                `tipoIdentificacion${role}`,
+                `cedula${role}`,
+                `telefono${role}`
+            ];
+
+            const anyFieldFilled = fields.some(field => {
+                const input = document.getElementById(field);
+                return input && input.value.trim() !== '';
+            });
+
+            if (anyFieldFilled) {
+                fields.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (input && input.value.trim() === '') {
+                        showError(input, `Debe completar todos los campos para ${role}.`);
+                    } else {
+                        clearError(input);
+                    }
+                });
+            } else {
+                fields.forEach(clearError);
+            }
+        }
+
+        ['Madre', 'Padre', 'Tutor'].forEach(role => {
+            const inputs = [
+                document.getElementById(`primerNombre${role}`),
+                document.getElementById(`segundoNombre${role}`),
+                document.getElementById(`primerApellido${role}`),
+                document.getElementById(`segundoApellido${role}`),
+                document.getElementById(`tipoIdentificacion${role}`),
+                document.getElementById(`cedula${role}`),
+                document.getElementById(`telefono${role}`)
+            ];
+            inputs.forEach(input => {
+                if (input) {
+                    input.addEventListener('input', () => validateParentOrTutorFields(role));
+                    input.addEventListener('blur', () => validateParentOrTutorFields(role));
+                }
+            });
+        });
 
         const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
 
