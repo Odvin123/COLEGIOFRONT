@@ -38,12 +38,18 @@
             font-size: 0.8em;
             margin-top: 5px;
             display: block;
+            min-height: 1em; /* Para mantener el espacio */
         }
         .is-invalid {
             border-color: red;
         }
         .is-valid {
             border-color: green;
+        }
+        /* Añadido para los campos disabled */
+        input:disabled, select:disabled, textarea:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -55,41 +61,47 @@
         <div id="formErrorMessage" class="custom-alert error"></div>
         <div id="loadingIndicator" class="loading-indicator">Cargando... por favor espera.</div>
 
-        <form id="matriculaForm">
-            
-            <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
+        <form id="matriculaForm" novalidate> <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
             <label for="telefono">Teléfono:</label>
             <input type="tel" id="telefono" name="telefono" required>
+            <span class="error-message" id="error-telefono"></span>
 
             <label for="direccion">Dirección:</label>
             <textarea id="direccion" name="direccion" required></textarea>
+            <span class="error-message" id="error-direccion"></span>
 
-            <label for="nombre">Primer Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required>
+            <label for="primerNombre">Primer Nombre:</label> <input type="text" id="primerNombre" name="primerNombre" required>
+            <span class="error-message" id="error-primerNombre"></span>
 
             <label for="segundoNombre">Segundo Nombre:</label>
             <input type="text" id="segundoNombre" name="segundoNombre">
+            <span class="error-message" id="error-segundoNombre"></span>
 
-            <label for="apellido1">Primer Apellido:</label>
-            <input type="text" id="apellido1" name="apellido1" required>
+            <label for="primerApellido">Primer Apellido:</label> <input type="text" id="primerApellido" name="primerApellido" required>
+            <span class="error-message" id="error-primerApellido"></span>
 
-            <label for="apellido2">Segundo Apellido:</label>
-            <input type="text" id="apellido2" name="apellido2">
+            <label for="segundoApellido">Segundo Apellido:</label>
+            <input type="text" id="segundoApellido" name="segundoApellido">
+            <span class="error-message" id="error-segundoApellido"></span>
 
             <label for="fechaNacimiento">Fecha de Nacimiento:</label>
             <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+            <span class="error-message" id="error-fechaNacimiento"></span>
 
             <label for="genero">Género:</label>
             <select id="genero" name="genero" required>
-                <option value="Femenino">Femenino</option>
+                <option value="">Seleccione un género</option> <option value="Femenino">Femenino</option>
                 <option value="Masculino">Masculino</option>
             </select>
+            <span class="error-message" id="error-genero"></span>
 
             <label for="peso">Peso (kg):</label>
             <input type="number" id="peso" name="peso" step="0.01" required min="0.01">
+            <span class="error-message" id="error-peso"></span>
 
             <label for="talla">Talla (cm):</label>
             <input type="number" id="talla" name="talla" step="0.01" required min="0.01">
+            <span class="error-message" id="error-talla"></span>
 
             <label for="nacionalidad">Nacionalidad:</label>
             <select id="nacionalidad" name="nacionalidad" required>
@@ -97,18 +109,19 @@
                 <option value="Nicaragüense">Nicaragüense</option>
                 <option value="Extranjero">Extranjero</option>
             </select>
+            <span class="error-message" id="error-nacionalidad"></span>
 
             <label for="paisNacimiento">País de Nacimiento:</label>
             <input type="text" id="paisNacimiento" name="paisNacimiento" required>
+            <span class="error-message" id="error-paisNacimiento"></span>
 
-            <label for="departamento">Departamento:</label>
-            <select id="departamento" name="departamento" required>
+            <label for="residenciaDepartamento">Departamento de Residencia:</label> <select id="residenciaDepartamento" name="residenciaDepartamento" required>
                 <option value="">Seleccione un departamento</option>
                 <option value="Managua">Managua</option>
-            </select>
+                </select>
+            <span class="error-message" id="error-residenciaDepartamento"></span>
 
-            <label for="municipio">Municipio/Distrito:</label>
-            <select id="municipio" name="municipio" required>
+            <label for="residenciaMunicipio">Municipio/Distrito de Residencia:</label> <select id="residenciaMunicipio" name="residenciaMunicipio" required>
                 <option value="">Seleccione un municipio</option>
                 <option value="Managua">Managua</option>
                 <option value="Ciudad Sandino">Ciudad Sandino</option>
@@ -120,10 +133,11 @@
                 <option value="San Reafael del Sur">San Reafael del Sur</option>
                 <option value="San Fransisco Libre">San Fransisco Libre</option>
             </select>
+            <span class="error-message" id="error-residenciaMunicipio"></span>
 
             <label for="lenguaMaterna">Lengua Materna:</label>
             <select id="lenguaMaterna" name="lenguaMaterna" required>
-                <option value="Español">Español</option>
+                <option value="">Seleccione una lengua</option> <option value="Español">Español</option>
                 <option value="Miskitu">Miskitu</option>
                 <option value="Mayangna">Mayangna</option>
                 <option value="Garífuna">Garífuna</option>
@@ -132,10 +146,11 @@
                 <option value="Rama">Rama</option>
                 <option value="Creole">Creole</option>
             </select>
+            <span class="error-message" id="error-lenguaMaterna"></span>
 
             <label for="discapacidad">Discapacidad (según informe médico):</label>
             <select id="discapacidad" name="discapacidad" required>
-                <option value="Ninguna">Ninguna</option>
+                <option value="">Seleccione una opción</option> <option value="Ninguna">Ninguna</option>
                 <option value="Intelectual">Intelectual</option>
                 <option value="Autismo">Autismo</option>
                 <option value="Hipoacusia">Hipoacusia</option>
@@ -146,13 +161,28 @@
                 <option value="Ciego">Ciego</option>
                 <option value="Sordo-Ciego">Sordo-Ciego</option>
             </select>
+            <span class="error-message" id="error-discapacidad"></span>
 
-            <label for="territorioIndigena">¿El estudiante pertenece a territorio indígena? ¿Cuál?:</label>
-            <input type="text" id="territorioIndigena" name="territorioIndigena">
+            <label for="territorioIndigenaEstudiante">¿El estudiante pertenece a territorio indígena? ¿Cuál?:</label>
+            <select id="territorioIndigenaEstudiante" name="territorioIndigenaEstudiante">
+                <option value="Ninguna">Ninguna</option>
+                <option value="Miskitu">Miskitu</option>
+                <option value="Mayangna">Mayangna</option>
+                <option value="Rama">Rama</option>
+                <option value="Creole">Creole</option>
+                <option value="Garífuna">Garífuna</option>
+                <option value="Chorotega">Chorotega</option>
+            </select>
+            <span class="error-message" id="error-territorioIndigenaEstudiante"></span>
 
-            <label for="habitaIndigena">¿El estudiante habita en territorio indígena? ¿Cuál?:</label>
-            <input type="text" id="habitaIndigena" name="habitaIndigena">
-
+            <label for="habitaIndigenaEstudiante">¿El estudiante habita en territorio indígena? ¿Cuál?:</label>
+            <select id="habitaIndigenaEstudiante" name="habitaIndigenaEstudiante">
+                <option value="No Aplica">No Aplica</option>
+                <option value="Sí">Sí</option>
+                <option value="No">No</option>
+            </select>
+            <span class="error-message" id="error-habitaIndigenaEstudiante"></span>
+            
             <h3>DATOS PERSONALES DE LOS PADRES O TUTOR</h3>
             <p style="color: red; text-align: center; display: none;" id="error-message">Debe completar al menos un conjunto de datos (madre, padre o tutor).</p>
 
@@ -178,13 +208,16 @@
                 <option value="">Seleccione</option>
                 <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
                 <option value="Cedula Extranjera">Cédula Extranjera</option>
-            </select>
+                <option value="No Aplica">No Aplica</option> </select>
+            <span class="error-message" id="error-tipoIdentificacionMadre"></span>
 
             <label for="cedulaMadre">Número de cédula de la madre:</label>
-            <input type="text" id="cedulaMadre" name="cedulaMadre" placeholder="Ejemplo: 001-234567-8910A" maxlength="16">
+            <input type="text" id="cedulaMadre" name="cedulaMadre" placeholder="Ejemplo: 001-234567-8910A" disabled>
+            <span class="error-message" id="error-cedulaMadre"></span>
 
             <label for="telefonoMadre">Teléfono de la madre (solo números):</label>
             <input type="tel" id="telefonoMadre" name="telefonoMadre" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
+            <span class="error-message" id="error-telefonoMadre"></span>
 
             <h4>Datos del Padre</h4>
             <label for="primerNombrePadre">Primer Nombre del Padre:</label>
@@ -208,13 +241,17 @@
                 <option value="">Seleccione</option>
                 <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
                 <option value="Cedula Extranjera">Cédula Extranjera</option>
+                <option value="No Aplica">No Aplica</option>
             </select>
+            <span class="error-message" id="error-tipoIdentificacionPadre"></span>
 
             <label for="cedulaPadre">Número de cédula del padre:</label>
-            <input type="text" id="cedulaPadre" name="cedulaPadre" placeholder="Ejemplo: 001-234567-8910A" maxlength="16">
+            <input type="text" id="cedulaPadre" name="cedulaPadre" placeholder="Ejemplo: 001-234567-8910A" disabled>
+            <span class="error-message" id="error-cedulaPadre"></span>
 
             <label for="telefonoPadre">Teléfono del padre (solo números):</label>
             <input type="tel" id="telefonoPadre" name="telefonoPadre" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
+            <span class="error-message" id="error-telefonoPadre"></span>
 
             <h4>Datos del Tutor</h4>
             <label for="primerNombreTutor">Primer Nombre del Tutor:</label>
@@ -238,32 +275,42 @@
                 <option value="">Seleccione</option>
                 <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
                 <option value="Cedula Extranjera">Cédula Extranjera</option>
+                <option value="No Aplica">No Aplica</option>
             </select>
+            <span class="error-message" id="error-tipoIdentificacionTutor"></span>
 
             <label for="cedulaTutor">Número de cédula del tutor:</label>
-            <input type="text" id="cedulaTutor" name="cedulaTutor" placeholder="Ejemplo: 001-234567-8910A" maxlength="16">
+            <input type="text" id="cedulaTutor" name="cedulaTutor" placeholder="Ejemplo: 001-234567-8910A" disabled>
+            <span class="error-message" id="error-cedulaTutor"></span>
 
             <label for="telefonoTutor">Teléfono del tutor (solo números):</label>
             <input type="tel" id="telefonoTutor" name="telefonoTutor" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
-
+            <span class="error-message" id="error-telefonoTutor"></span>
+            
             <h3>DATOS ACADÉMICOS DEL ESTUDIANTE</h3>
             <label for="fechaMatricula">Fecha de matrícula del estudiante:</label>
             <input type="text" id="fechaMatricula" name="fechaMatricula" readonly required>
+            <span class="error-message" id="error-fechaMatricula"></span>
 
             <label for="departamentoacad">Departamento del que proviene:</label>
             <input type="text" id="departamentoacad" name="departamentoacad" readonly required>
+            <span class="error-message" id="error-departamentoacad"></span>
 
             <label for="municipioAcad">Municipio/Distrito:</label>
             <input type="text" id="municipioAcad" name="municipioAcad" readonly required>
+            <span class="error-message" id="error-municipioAcad"></span>
 
             <label for="codigoUnico">Código único del establecimiento:</label>
             <input type="text" id="codigoUnico" name="codigoUnico" value="14432" readonly required>
+            <span class="error-message" id="error-codigoUnico"></span>
 
             <label for="codigoCentro">Código del Centro Educativo:</label>
             <input type="text" id="codigoCentro" name="codigoCentro" value="22224" readonly required>
+            <span class="error-message" id="error-codigoCentro"></span>
 
             <label for="nombreCentro">Nombre del centro educativo:</label>
             <input type="text" id="nombreCentro" name="nombreCentro" value="Colegio Soldado de la Cruz" readonly required>
+            <span class="error-message" id="error-nombreCentro"></span>
 
             <label for="nivelEducativo">Nivel educativo:</label>
             <select id="nivelEducativo" name="nivelEducativo" required>
@@ -272,9 +319,11 @@
                 <option value="Educación Primaria">Educación Primaria</option>
                 <option value="Educación Secundaria">Educación Secundaria</option>
             </select>
+            <span class="error-message" id="error-nivelEducativo"></span>
 
             <label for="modalidad">Modalidad:</label>
             <input type="text" id="modalidad" name="modalidad" readonly required>
+            <span class="error-message" id="error-modalidad"></span>
 
             <label>Turno:</label>
             <div>
@@ -285,10 +334,11 @@
                 <label><input type="radio" name="turno" value="Dominical"> Dominical</label>
                 <label><input type="radio" name="turno" value="Encuentro Quincenal"> Encuentro Quincenal</label>
             </div>
+            <span class="error-message" id="error-turno"></span>
 
             <label for="grado">Nivel/Grado/Año/Ciclo/Grupo:</label>
             <select id="grado" name="grado" required>
-                <optgroup label="Preescolar">
+                <option value="">Seleccione un grado</option> <optgroup label="Preescolar">
                     <option value="Primer Nivel">Primer Nivel</option>
                     <option value="Segundo Nivel">Segundo Nivel</option>
                     <option value="Tercer Nivel">Tercer Nivel</option>
@@ -309,6 +359,7 @@
                     <option value="Undécimo grado/Quinto año">Undécimo grado/Quinto año</option>
                 </optgroup>
             </select>
+            <span class="error-message" id="error-grado"></span>
 
             <label for="seccion">Sección:</label>
             <select id="seccion" name="seccion" required>
@@ -318,19 +369,19 @@
                 <option value="C">C</option>
                 <option value="D">D</option>
             </select>
+            <span class="error-message" id="error-seccion"></span>
 
             <label>¿Es repitente?:</label>
             <div>
                 <label><input type="radio" name="repitente" value="Si" required> Sí</label>
                 <label><input type="radio" name="repitente" value="No"> No</label>
             </div>
-
+            <span class="error-message" id="error-repitente"></span>
             
             <button type="submit">Registrar</button>
         </form>
     </div>
 
-    
     <script>
         window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
     </script>
