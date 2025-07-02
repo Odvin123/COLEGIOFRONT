@@ -576,6 +576,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('formSuccessMessage').style.display = 'block';
                 console.log('✅ Todos los datos han sido guardados exitosamente.');
 
+                    this.reset(); 
+
+
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert-float success'; 
                 alertDiv.textContent = '¡Registro de Matrícula Exitoso!';
@@ -584,7 +587,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     alertDiv.remove();
                     clearForm(); 
-                    window.location.href = 'index.html'; 
+                    window.location.href = '../index.html'; 
                 }, 3000); 
 
 
