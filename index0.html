@@ -156,8 +156,29 @@
             <h3>DATOS PERSONALES DE LOS PADRES O TUTOR</h3>
             <p style="color: red; text-align: center; display: none;" id="error-message">Debe completar al menos un conjunto de datos (madre, padre o tutor).</p>
 
-            <label for="nombreMadre">Nombres y Apellidos de la madre:</label>
-            <input type="text" id="nombreMadre" name="nombreMadre">
+            <h4>Datos de la Madre</h4>
+            <label for="primerNombreMadre">Primer Nombre de la Madre:</label>
+            <input type="text" id="primerNombreMadre" name="primerNombreMadre">
+            <span class="error-message" id="error-primerNombreMadre"></span>
+
+            <label for="segundoNombreMadre">Segundo Nombre de la Madre:</label>
+            <input type="text" id="segundoNombreMadre" name="segundoNombreMadre">
+            <span class="error-message" id="error-segundoNombreMadre"></span>
+
+            <label for="primerApellidoMadre">Primer Apellido de la Madre:</label>
+            <input type="text" id="primerApellidoMadre" name="primerApellidoMadre">
+            <span class="error-message" id="error-primerApellidoMadre"></span>
+
+            <label for="segundoApellidoMadre">Segundo Apellido de la Madre:</label>
+            <input type="text" id="segundoApellidoMadre" name="segundoApellidoMadre">
+            <span class="error-message" id="error-segundoApellidoMadre"></span>
+
+            <label for="tipoIdentificacionMadre">Tipo de Identificación (Madre):</label>
+            <select id="tipoIdentificacionMadre" name="tipoIdentificacionMadre">
+                <option value="">Seleccione</option>
+                <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
+                <option value="Cedula Extranjera">Cédula Extranjera</option>
+            </select>
 
             <label for="cedulaMadre">Número de cédula de la madre:</label>
             <input type="text" id="cedulaMadre" name="cedulaMadre" placeholder="Ejemplo: 001-234567-8910A" maxlength="16">
@@ -165,8 +186,29 @@
             <label for="telefonoMadre">Teléfono de la madre (solo números):</label>
             <input type="tel" id="telefonoMadre" name="telefonoMadre" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
 
-            <label for="nombrePadre">Nombres y Apellidos del padre:</label>
-            <input type="text" id="nombrePadre" name="nombrePadre">
+            <h4>Datos del Padre</h4>
+            <label for="primerNombrePadre">Primer Nombre del Padre:</label>
+            <input type="text" id="primerNombrePadre" name="primerNombrePadre">
+            <span class="error-message" id="error-primerNombrePadre"></span>
+
+            <label for="segundoNombrePadre">Segundo Nombre del Padre:</label>
+            <input type="text" id="segundoNombrePadre" name="segundoNombrePadre">
+            <span class="error-message" id="error-segundoNombrePadre"></span>
+
+            <label for="primerApellidoPadre">Primer Apellido del Padre:</label>
+            <input type="text" id="primerApellidoPadre" name="primerApellidoPadre">
+            <span class="error-message" id="error-primerApellidoPadre"></span>
+
+            <label for="segundoApellidoPadre">Segundo Apellido del Padre:</label>
+            <input type="text" id="segundoApellidoPadre" name="segundoApellidoPadre">
+            <span class="error-message" id="error-segundoApellidoPadre"></span>
+
+            <label for="tipoIdentificacionPadre">Tipo de Identificación (Padre):</label>
+            <select id="tipoIdentificacionPadre" name="tipoIdentificacionPadre">
+                <option value="">Seleccione</option>
+                <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
+                <option value="Cedula Extranjera">Cédula Extranjera</option>
+            </select>
 
             <label for="cedulaPadre">Número de cédula del padre:</label>
             <input type="text" id="cedulaPadre" name="cedulaPadre" placeholder="Ejemplo: 001-234567-8910A" maxlength="16">
@@ -174,8 +216,29 @@
             <label for="telefonoPadre">Teléfono del padre (solo números):</label>
             <input type="tel" id="telefonoPadre" name="telefonoPadre" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
 
-            <label for="nombreTutor">Nombres y Apellidos del tutor:</label>
-            <input type="text" id="nombreTutor" name="nombreTutor">
+            <h4>Datos del Tutor</h4>
+            <label for="primerNombreTutor">Primer Nombre del Tutor:</label>
+            <input type="text" id="primerNombreTutor" name="primerNombreTutor">
+            <span class="error-message" id="error-primerNombreTutor"></span>
+
+            <label for="segundoNombreTutor">Segundo Nombre del Tutor:</label>
+            <input type="text" id="segundoNombreTutor" name="segundoNombreTutor">
+            <span class="error-message" id="error-segundoNombreTutor"></span>
+
+            <label for="primerApellidoTutor">Primer Apellido del Tutor:</label>
+            <input type="text" id="primerApellidoTutor" name="primerApellidoTutor">
+            <span class="error-message" id="error-primerApellidoTutor"></span>
+
+            <label for="segundoApellidoTutor">Segundo Apellido del Tutor:</label>
+            <input type="text" id="segundoApellidoTutor" name="segundoApellidoTutor">
+            <span class="error-message" id="error-segundoApellidoTutor"></span>
+
+            <label for="tipoIdentificacionTutor">Tipo de Identificación (Tutor):</label>
+            <select id="tipoIdentificacionTutor" name="tipoIdentificacionTutor">
+                <option value="">Seleccione</option>
+                <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
+                <option value="Cedula Extranjera">Cédula Extranjera</option>
+            </select>
 
             <label for="cedulaTutor">Número de cédula del tutor:</label>
             <input type="text" id="cedulaTutor" name="cedulaTutor" placeholder="Ejemplo: 001-234567-8910A" maxlength="16">
@@ -184,7 +247,7 @@
             <input type="tel" id="telefonoTutor" name="telefonoTutor" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
 
             <h3>DATOS ACADÉMICOS DEL ESTUDIANTE</h3>
-           <label for="fechaMatricula">Fecha de matrícula del estudiante:</label>
+            <label for="fechaMatricula">Fecha de matrícula del estudiante:</label>
             <input type="text" id="fechaMatricula" name="fechaMatricula" readonly required>
 
             <label for="departamentoacad">Departamento del que proviene:</label>
