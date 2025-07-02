@@ -61,7 +61,8 @@
         <div id="formErrorMessage" class="custom-alert error"></div>
         <div id="loadingIndicator" class="loading-indicator">Cargando... por favor espera.</div>
 
-        <form id="matriculaForm" novalidate> <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
+        <form id="matriculaForm" novalidate>
+            <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
             <label for="telefono">Teléfono:</label>
             <input type="tel" id="telefono" name="telefono" required>
             <span class="error-message" id="error-telefono"></span>
@@ -70,18 +71,20 @@
             <textarea id="direccion" name="direccion" required></textarea>
             <span class="error-message" id="error-direccion"></span>
 
-            <label for="primerNombre">Primer Nombre:</label> <input type="text" id="primerNombre" name="primerNombre" required>
+            <label for="primerNombre">Primer Nombre:</label>
+            <input type="text" id="primerNombre" name="primerNombre" required pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
             <span class="error-message" id="error-primerNombre"></span>
 
             <label for="segundoNombre">Segundo Nombre:</label>
-            <input type="text" id="segundoNombre" name="segundoNombre">
+            <input type="text" id="segundoNombre" name="segundoNombre" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
             <span class="error-message" id="error-segundoNombre"></span>
 
-            <label for="primerApellido">Primer Apellido:</label> <input type="text" id="primerApellido" name="primerApellido" required>
+            <label for="primerApellido">Primer Apellido:</label>
+            <input type="text" id="primerApellido" name="primerApellido" required pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
             <span class="error-message" id="error-primerApellido"></span>
 
             <label for="segundoApellido">Segundo Apellido:</label>
-            <input type="text" id="segundoApellido" name="segundoApellido">
+            <input type="text" id="segundoApellido" name="segundoApellido" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
             <span class="error-message" id="error-segundoApellido"></span>
 
             <label for="fechaNacimiento">Fecha de Nacimiento:</label>
@@ -90,7 +93,8 @@
 
             <label for="genero">Género:</label>
             <select id="genero" name="genero" required>
-                <option value="">Seleccione un género</option> <option value="Femenino">Femenino</option>
+                <option value="">Seleccione un género</option>
+                <option value="Femenino">Femenino</option>
                 <option value="Masculino">Masculino</option>
             </select>
             <span class="error-message" id="error-genero"></span>
@@ -115,13 +119,15 @@
             <input type="text" id="paisNacimiento" name="paisNacimiento" required>
             <span class="error-message" id="error-paisNacimiento"></span>
 
-            <label for="residenciaDepartamento">Departamento de Residencia:</label> <select id="residenciaDepartamento" name="residenciaDepartamento" required>
+            <label for="residenciaDepartamento">Departamento de Residencia:</label>
+            <select id="residenciaDepartamento" name="residenciaDepartamento" required>
                 <option value="">Seleccione un departamento</option>
                 <option value="Managua">Managua</option>
-                </select>
+            </select>
             <span class="error-message" id="error-residenciaDepartamento"></span>
 
-            <label for="residenciaMunicipio">Municipio/Distrito de Residencia:</label> <select id="residenciaMunicipio" name="residenciaMunicipio" required>
+            <label for="residenciaMunicipio">Municipio/Distrito de Residencia:</label>
+            <select id="residenciaMunicipio" name="residenciaMunicipio" required>
                 <option value="">Seleccione un municipio</option>
                 <option value="Managua">Managua</option>
                 <option value="Ciudad Sandino">Ciudad Sandino</option>
@@ -130,14 +136,15 @@
                 <option value="Tipitapa">Tipitapa</option>
                 <option value="Ticuantepe">Ticuantepe</option>
                 <option value="Mateare">Mateare</option>
-                <option value="San Reafael del Sur">San Reafael del Sur</option>
-                <option value="San Fransisco Libre">San Fransisco Libre</option>
+                <option value="San Rafael del Sur">San Rafael del Sur</option>
+                <option value="San Francisco Libre">San Francisco Libre</option>
             </select>
             <span class="error-message" id="error-residenciaMunicipio"></span>
 
             <label for="lenguaMaterna">Lengua Materna:</label>
             <select id="lenguaMaterna" name="lenguaMaterna" required>
-                <option value="">Seleccione una lengua</option> <option value="Español">Español</option>
+                <option value="">Seleccione una lengua</option>
+                <option value="Español">Español</option>
                 <option value="Miskitu">Miskitu</option>
                 <option value="Mayangna">Mayangna</option>
                 <option value="Garífuna">Garífuna</option>
@@ -150,7 +157,8 @@
 
             <label for="discapacidad">Discapacidad (según informe médico):</label>
             <select id="discapacidad" name="discapacidad" required>
-                <option value="">Seleccione una opción</option> <option value="Ninguna">Ninguna</option>
+                <option value="">Seleccione una opción</option>
+                <option value="Ninguna">Ninguna</option>
                 <option value="Intelectual">Intelectual</option>
                 <option value="Autismo">Autismo</option>
                 <option value="Hipoacusia">Hipoacusia</option>
@@ -177,7 +185,6 @@
 
             <label for="habitaIndigenaEstudiante">¿El estudiante habita en territorio indígena? ¿Cuál?:</label>
             <select id="habitaIndigenaEstudiante" name="habitaIndigenaEstudiante">
-                <option value="No Aplica">No Aplica</option>
                 <option value="Sí">Sí</option>
                 <option value="No">No</option>
             </select>
@@ -208,7 +215,7 @@
                 <option value="">Seleccione</option>
                 <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
                 <option value="Cedula Extranjera">Cédula Extranjera</option>
-                <option value="No Aplica">No Aplica</option> </select>
+            </select>
             <span class="error-message" id="error-tipoIdentificacionMadre"></span>
 
             <label for="cedulaMadre">Número de cédula de la madre:</label>
@@ -241,7 +248,6 @@
                 <option value="">Seleccione</option>
                 <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
                 <option value="Cedula Extranjera">Cédula Extranjera</option>
-                <option value="No Aplica">No Aplica</option>
             </select>
             <span class="error-message" id="error-tipoIdentificacionPadre"></span>
 
@@ -275,7 +281,6 @@
                 <option value="">Seleccione</option>
                 <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
                 <option value="Cedula Extranjera">Cédula Extranjera</option>
-                <option value="No Aplica">No Aplica</option>
             </select>
             <span class="error-message" id="error-tipoIdentificacionTutor"></span>
 
@@ -338,7 +343,8 @@
 
             <label for="grado">Nivel/Grado/Año/Ciclo/Grupo:</label>
             <select id="grado" name="grado" required>
-                <option value="">Seleccione un grado</option> <optgroup label="Preescolar">
+                <option value="">Seleccione un grado</option>
+                <optgroup label="Preescolar">
                     <option value="Primer Nivel">Primer Nivel</option>
                     <option value="Segundo Nivel">Segundo Nivel</option>
                     <option value="Tercer Nivel">Tercer Nivel</option>
