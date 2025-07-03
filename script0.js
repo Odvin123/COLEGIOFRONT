@@ -72,14 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 `segundoApellido${role}`
             ];
 
-            // Verificar si al menos un campo tiene valor
+          
             const hasAnyValue = [...requiredFields, ...optionalFields].some(field => {
                 const input = document.getElementById(field);
                 return input && input.value.trim() !== '';
             });
 
             if (hasAnyValue) {
-                // Validar campos obligatorios
                 requiredFields.forEach(field => {
                     const input = document.getElementById(field);
                     if (input && input.value.trim() === '') {
@@ -88,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         clearError(input);
                     }
                 });
-                // Limpiar errores en campos opcionales si están vacíos
                 optionalFields.forEach(field => {
                     const input = document.getElementById(field);
                     if (input && input.value.trim() === '') {
@@ -96,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             } else {
-                // Si no hay ningún campo lleno, limpiar errores
+                
                 ([...requiredFields, ...optionalFields]).forEach(field => {
                     const input = document.getElementById(field);
                     if (input) clearError(input);
@@ -122,9 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Asegúrate de que esta URL coincida con la URL de tu backend
-        // Si tu backend está en localhost:8000, úsala aquí.
-        // Si está desplegado en Koyeb, usa esa URL.
+       
         const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
 
         function setFechaMatriculaToday() {
@@ -406,10 +402,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     filteredGradoOptions.forEach(option => gradoSelect.appendChild(option.cloneNode(true)));
-                    gradoSelect.value = ''; // Reset selected grade
+                    gradoSelect.value = ''; 
                     clearError(gradoSelect);
 
-                    // Set modalidad based on nivelEducativo
+                    
                     if (selectedNivel === 'Educación Inicial') {
                         modalidadInput.value = 'Preescolar-formal';
                     } else if (selectedNivel === 'Educación Primaria') {
@@ -428,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
 
                 nivelEducativoSelect.addEventListener('change', filterOptions);
-                filterOptions(); // Call on load to set initial state
+                filterOptions(); 
             }
         }
 
@@ -458,11 +454,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (studentDepartmentSelect && studentMunicipioSelect && academicDepartmentInput && academicMunicipioInput) {
                 studentDepartmentSelect.addEventListener('change', updateAcademicLocation);
                 studentMunicipioSelect.addEventListener('change', updateAcademicLocation);
-                updateAcademicLocation(); // Call on load to set initial state
+                updateAcademicLocation(); 
             }
         }
 
-        // Apply validations to specific fields
+        
         applyLettersOnlyValidation(document.getElementById('primerNombre'), 'Primer Nombre');
         applyLettersOnlyValidation(document.getElementById('segundoNombre'), 'Segundo Nombre');
         applyLettersOnlyValidation(document.getElementById('primerApellido'), 'Primer Apellido');
@@ -495,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyCedulaValidation(document.getElementById('tipoIdentificacionTutor'), document.getElementById('cedulaTutor'));
         applyPhoneValidation(document.getElementById('telefonoTutor'), 8, '88887777');
 
-        // Initial setup calls
+        
         setupNationalityDependentFields();
         setupGradeAndModalityFiltering();
         synchronizeLocationFields();
@@ -511,34 +507,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 data[key] = value.trim();
             }
 
-            // Manually add radio button values
+            
             data.turno = document.querySelector('input[name="turno"]:checked')?.value || '';
             data.repitente = document.querySelector('input[name="repitente"]:checked')?.value || '';
 
 
             let formIsValid = true;
 
-            // Clear previous errors
+           
             document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
 
-            // Re-run validations for all inputs
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly && !input.disabled) {
-                    const event = new Event('blur'); // Trigger blur to re-validate
+                    const event = new Event('blur'); 
                     input.dispatchEvent(event);
                 }
             });
 
-            // Re-validate cedula fields explicitly since their validation is complex
             ['Madre', 'Padre', 'Tutor'].forEach(role => {
                 const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
                 const cedulaInput = document.getElementById(`cedula${role}`);
                 if (typeSelect && cedulaInput) {
-                    applyCedulaValidation(typeSelect, cedulaInput); // Re-run validation logic
+                    applyCedulaValidation(typeSelect, cedulaInput); 
 
-                    // Additional check for required cedula if type is selected
+                  
                     if (typeSelect.value !== '' && cedulaInput.value.trim() === '' && !cedulaInput.disabled) {
                         showError(cedulaInput, 'Este campo es obligatorio cuando se selecciona un tipo de identificación.');
                         formIsValid = false;
@@ -547,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
 
-            // Validate student required fields
+            
             const studentRequiredFields = ['telefono', 'direccion', 'primerNombre', 'primerApellido', 'fechaNacimiento',
                 'genero', 'peso', 'talla', 'nacionalidad', 'paisNacimiento',
                 'residenciaDepartamento', 'residenciaMunicipio', 'lenguaMaterna', 'discapacidad'
@@ -561,7 +555,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Validate at least one parent/tutor
             const isMadreComplete = data.primerNombreMadre || data.segundoNombreMadre || data.primerApellidoMadre || data.segundoApellidoMadre || data.tipoIdentificacionMadre || data.cedulaMadre || data.telefonoMadre;
             const isPadreComplete = data.primerNombrePadre || data.segundoNombrePadre || data.primerApellidoPadre || data.segundoApellidoPadre || data.tipoIdentificacionPadre || data.cedulaPadre || data.telefonoPadre;
             const isTutorComplete = data.primerNombreTutor || data.segundoNombreTutor || data.primerApellidoTutor || data.segundoApellidoTutor || data.tipoIdentificacionTutor || data.cedulaTutor || data.telefonoTutor;
@@ -581,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
 
-            // Validate academic required fields
+            
             const academicRequiredFields = ['fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
                 'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad',
                 'turno', 'grado', 'seccion', 'repitente'
@@ -590,11 +583,11 @@ document.addEventListener('DOMContentLoaded', function() {
             for (const fieldName of academicRequiredFields) {
                 const inputElement = this.querySelector(`[name="${fieldName}"]`);
                 if (inputElement && inputElement.type === 'radio') {
-                    // Handle radio buttons separately
+             
                     const radioGroup = this.querySelectorAll(`input[name="${fieldName}"]`);
                     const isChecked = Array.from(radioGroup).some(radio => radio.checked);
                     if (!isChecked) {
-                        const parentDiv = radioGroup[0].closest('div'); // Assuming radios are in a div
+                        const parentDiv = radioGroup[0].closest('div'); 
                         if (parentDiv) {
                             let errorSpan = parentDiv.querySelector('.error-message');
                             if (!errorSpan) {
@@ -618,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Check if there are any invalid inputs
+           
             const invalidInputs = this.querySelectorAll('.is-invalid');
             if (invalidInputs.length > 0) {
                 formIsValid = false;
@@ -627,11 +620,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (formIsValid) {
                 console.log('Todos los datos son válidos, enviando al backend...', data);
-                // Ocultar el formulario
+                
                 matriculaForm.style.display = 'none';
 
                 try {
-                    // --- PREPARACIÓN DE DATOS PARA EL BACKEND (SEGÚN pdfController) ---
+                    
                     const studentData = {
                         primerNombre: data.primerNombre,
                         segundoNombre: data.segundoNombre,
@@ -700,24 +693,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         academicData,
                         parentData
                     };
-                    // --- FIN DE PREPARACIÓN DE DATOS ---
-
-                    // Send data to the backend for PDF generation
+                   
                     const response = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(payload), // Envía el payload estructurado
+                        body: JSON.stringify(payload), 
                     });
 
                     if (response.ok) {
-                        // Assuming the backend returns the PDF directly
+                       
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = 'ficha_de_matricula.pdf'; // Name of the downloaded file
+                        a.download = 'ficha_de_matricula.pdf'; 
                         document.body.appendChild(a);
                         a.click();
                         a.remove();
@@ -728,19 +719,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         alertDiv.className = 'alert-float';
                         alertDiv.innerHTML = '<span class="emoji"> 🎉 </span> <span>¡Matrícula Exitosa y PDF Generado!</span>';
                         document.body.appendChild(alertDiv);
-                        void alertDiv.offsetWidth; // Trigger reflow
+                        void alertDiv.offsetWidth;
                         alertDiv.classList.add('success-visible');
 
                         setTimeout(() => {
                             alertDiv.classList.remove('success-visible');
                             alertDiv.addEventListener('transitionend', () => {
                                 alertDiv.remove();
-                                // Opcional: Mostrar el formulario de nuevo o limpiar
+                                
                                 matriculaForm.style.display = 'block';
-                                clearForm(); // Limpia el formulario después de un envío exitoso
-                                window.location.href = '../index.html'; // Redirigir a la página principal
+                                clearForm(); 
+                                window.location.href = '../index.html'; 
                             }, { once: true });
-                        }, 3000); // Ocultar después de 3 segundos
+                        }, 3000); 
 
                     } else {
                         const errorText = await response.text();
@@ -750,7 +741,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             errorMessageElement.style.display = 'block';
                             errorMessageElement.textContent = `Error al generar el PDF: ${errorText}`;
                         }
-                        matriculaForm.style.display = 'block'; // Show form again on error
+                        matriculaForm.style.display = 'block'; 
                     }
                 } catch (error) {
                     console.error(' ❌ Error al conectar con el backend:', error);
@@ -759,7 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessageElement.style.display = 'block';
                         errorMessageElement.textContent = `Error de conexión: ${error.message}`;
                     }
-                    matriculaForm.style.display = 'block'; // Show form again on error
+                    matriculaForm.style.display = 'block'; 
                 }
             } else {
                 console.log(' ❌ Formulario no válido. Revise los errores.');
@@ -768,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessageElement.style.display = 'block';
                     errorMessageElement.textContent = "Por favor, corrija los errores en el formulario antes de enviar.";
                 }
-                // Scroll to the first invalid input
+
                 const firstInvalid = document.querySelector('.is-invalid');
                 if (firstInvalid) {
                     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
