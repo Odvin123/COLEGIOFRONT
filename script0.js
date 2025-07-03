@@ -79,15 +79,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 return input && input.value.trim() !== '';
             });
 
-            if (anyFieldFilled) {
-                fields.forEach(field => {
-                    const input = document.getElementById(field);
-                    if (input && input.value.trim() === '') {
-                        showError(input, `Debe completar todos los campos para ${role}.`);
-                    } else {
-                        clearError(input);
-                    }
-                });
+          if (anyFilled) {
+        fields.forEach((field, index) => {
+            const input = document.getElementById(field);
+
+            // Si el campo NO es "segundoNombre" ni "segundoApellido", es obligatorio
+            if (!field.includes("segundoNombre") && !field.includes("segundoApellido")) {
+                if (filledValues[index] === '') {
+                    showError(input, `Este campo es obligatorio para ${role}.`);
+                } else {
+                    clearError(input);
+                }
+            } else {
+                // Si es "segundoNombre" o "segundoApellido", y está vacío, permitimos "N/A"
+                if (filledValues[index] === '') {
+                    input.value = 'N/A'; // 👈 Valor por defecto lógico
+                    clearError(input);
+                } else {
+                    clearError(input);
+                }
+            }
+        });
             } else {
                 fields.forEach(clearError);
             }
