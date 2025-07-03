@@ -281,16 +281,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             clearError(cedulaInputElement);
                             cedulaInputElement.classList.add('is-valid');
                         }
-                    } else if (typeSelectElement.value === 'Cedula Extranjera') {
-                        cedulaInputElement.disabled = false;
-                        clearError(cedulaInputElement); 
-                        cedulaInputElement.classList.remove('is-invalid', 'is-valid'); 
-                    } else {
-                        cedulaInputElement.value = '';
-                        cedulaInputElement.disabled = true;
-                        clearError(cedulaInputElement);
-                        cedulaInputElement.classList.remove('is-invalid', 'is-valid');
-                    }
+                   } else if (typeSelectElement.value === 'Cedula Extranjera') {
+            cedulaInputElement.disabled = false;
+             cedulaInputElement.value = ''; // Limpiamos el campo
+             cedulaInputElement.placeholder = ''; // Quitamos cualquier ejemplo o placeholder
+            clearError(cedulaInputElement);
+            cedulaInputElement.classList.remove('is-invalid', 'is-valid');
+
+    cedulaInputElement.placeholder = 'Ingrese cédula extranjera';
+    
+} else {
+    cedulaInputElement.value = '';
+    cedulaInputElement.disabled = true;
+    clearError(cedulaInputElement);
+    cedulaInputElement.classList.remove('is-invalid', 'is-valid');
+}
                 };
 
                 typeSelectElement.addEventListener('change', validateCedula);
