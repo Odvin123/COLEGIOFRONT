@@ -738,6 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // Opcional: Mostrar el formulario de nuevo o limpiar
                                 matriculaForm.style.display = 'block';
                                 clearForm(); // Limpia el formulario después de un envío exitoso
+                                window.location.href = '../index.html'; // Redirigir a la página principal
                             }, { once: true });
                         }, 3000); // Ocultar después de 3 segundos
 
