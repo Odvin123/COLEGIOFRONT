@@ -249,61 +249,66 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function applyCedulaValidation(typeSelectElement, cedulaInputElement) {
-            if (typeSelectElement && cedulaInputElement) {
-                const validateCedula = () => {
-                    if (typeSelectElement.value === 'Cedula Nicaraguense') {
-                        cedulaInputElement.disabled = false;
-                        let value = cedulaInputElement.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
-                        let formattedValue = '';
+    if (typeSelectElement && cedulaInputElement) {
+        const validateCedula = () => {
+            if (typeSelectElement.value === 'Cedula Nicaraguense') {
+                cedulaInputElement.disabled = false;
+                let value = cedulaInputElement.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
+                let formattedValue = '';
 
-                        if (value.length > 0) {
-                            formattedValue += value.substring(0, 3);
-                            if (value.length > 3) {
-                                formattedValue += '-' + value.substring(3, 9);
-                                if (value.length > 9) {
-                                    formattedValue += '-' + value.substring(9, 13);
-                                    if (value.length > 13) {
-                                        formattedValue += value.substring(13, 14); 
-                                    }
-                                }
+                if (value.length > 0) {
+                    formattedValue += value.substring(0, 3);
+                    if (value.length > 3) {
+                        formattedValue += '-' + value.substring(3, 9);
+                        if (value.length > 9) {
+                            formattedValue += '-' + value.substring(9, 13);
+                            if (value.length > 13) {
+                                formattedValue += value.substring(13, 14); 
                             }
                         }
-                        if (formattedValue.length > 16) {
-                            formattedValue = formattedValue.slice(0, 16);
-                        }
-                        cedulaInputElement.value = formattedValue;
+                    }
+                }
 
-                        if (cedulaInputElement.value.trim() === '') {
-                            clearError(cedulaInputElement);
-                        } else if (!/^\d{3}-\d{6}-\d{4}[A-Z]$/.test(cedulaInputElement.value)) {
-                            showError(cedulaInputElement, 'Formato de cédula nicaragüense incorrecto. Debe ser XXX-XXXXXX-XXXXA. Ejemplo: 123-456789-0123A');
-                        } else {
-                            clearError(cedulaInputElement);
-                            cedulaInputElement.classList.add('is-valid');
-                        }
-                   } else if (typeSelectElement.value === 'Cedula Extranjera') {
-            cedulaInputElement.disabled = false;
-             cedulaInputElement.value = ''; // Limpiamos el campo
-             cedulaInputElement.placeholder = ''; // Quitamos cualquier ejemplo o placeholder
-            clearError(cedulaInputElement);
-            cedulaInputElement.classList.remove('is-invalid', 'is-valid');
+                if (formattedValue.length > 16) {
+                    formattedValue = formattedValue.slice(0, 16);
+                }
 
-    cedulaInputElement.placeholder = 'Ingrese cédula extranjera';
-    
-} else {
-    cedulaInputElement.value = '';
-    cedulaInputElement.disabled = true;
-    clearError(cedulaInputElement);
-    cedulaInputElement.classList.remove('is-invalid', 'is-valid');
-}
-                };
+                cedulaInputElement.value = formattedValue;
 
-                typeSelectElement.addEventListener('change', validateCedula);
-                cedulaInputElement.addEventListener('input', validateCedula);
-                cedulaInputElement.addEventListener('blur', validateCedula);
-                validateCedula();
+                if (cedulaInputElement.value.trim() === '') {
+                    clearError(cedulaInputElement);
+                } else if (!/^\d{3}-\d{6}-\d{4}[A-Z]$/.test(cedulaInputElement.value)) {
+                    showError(cedulaInputElement, 'Formato de cédula nicaragüense incorrecto. Debe ser XXX-XXXXXX-XXXXA. Ejemplo: 123-456789-0123A');
+                } else {
+                    clearError(cedulaInputElement);
+                    cedulaInputElement.classList.add('is-valid');
+                }
+
+            } else if (typeSelectElement.value === 'Cedula Extranjera') {
+                cedulaInputElement.disabled = false;
+                cedulaInputElement.placeholder = 'DNI o Documento válido'; // 👈 Mensaje solicitado
+                clearError(cedulaInputElement);
+                cedulaInputElement.classList.remove('is-invalid', 'is-valid');
+
+                // No borramos el valor para que el usuario pueda escribir lo que necesite
+
+            } else {
+                // Si no se selecciona tipo de identificación
+                cedulaInputElement.value = '';
+                cedulaInputElement.disabled = true;
+                clearError(cedulaInputElement);
+                cedulaInputElement.classList.remove('is-invalid', 'is-valid');
             }
-        }
+        };
+
+        // Eventos para detectar cambios
+        typeSelectElement.addEventListener('change', validateCedula);
+        cedulaInputElement.addEventListener('input', validateCedula);
+        cedulaInputElement.addEventListener('blur', validateCedula);
+
+        validateCedula(); // Ejecutar una vez al cargar
+    }
+}
 
         function applyPositiveNumberValidation(inputElement, fieldName) {
             if (inputElement) {
