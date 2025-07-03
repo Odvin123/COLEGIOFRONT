@@ -63,60 +63,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.classList.remove('is-valid');
             }
         }
-        function validateParentOrTutorFields(role) {
-    const fields = [
-        `primerNombre${role}`,
-        `segundoNombre${role}`,
-        `primerApellido${role}`,
-        `segundoApellido${role}`,
-        `tipoIdentificacion${role}`,
-        `cedula${role}`,
-        `telefono${role}`
-    ];
+          function validateParentOrTutorFields(role) {
+            const fields = [
+                `primerNombre${role}`,
+                `segundoNombre${role}`,
+                `primerApellido${role}`,
+                `segundoApellido${role}`,
+                `tipoIdentificacion${role}`,
+                `cedula${role}`,
+                `telefono${role}`
+            ];
 
-    const filledValues = fields.map(field => {
-        const input = document.getElementById(field);
-        return input ? input.value.trim() : '';
-    });
+            const anyFieldFilled = fields.some(field => {
+                const input = document.getElementById(field);
+                return input && input.value.trim() !== '';
+            });
 
-    const anyFilled = filledValues.some(val => val !== '');
-
-    if (anyFilled) {
+          if (anyFilled) {
         fields.forEach((field, index) => {
             const input = document.getElementById(field);
 
-            // Campos obligatorios
-            if (
-                field.includes("primerNombre") ||
-                field.includes("primerApellido") ||
-                field.includes("tipoIdentificacion") ||
-                field.includes("cedula") ||
-                field.includes("telefono")
-            ) {
+            // Si el campo NO es "segundoNombre" ni "segundoApellido", es obligatorio
+            if (!field.includes("segundoNombre") && !field.includes("segundoApellido")) {
                 if (filledValues[index] === '') {
                     showError(input, `Este campo es obligatorio para ${role}.`);
                 } else {
                     clearError(input);
                 }
-            }
-
-            // Segundo nombre y segundo apellido son opcionales
-            if (
-                field.includes("segundoNombre") ||
-                field.includes("segundoApellido")
-            ) {
+            } else {
+                // Si es "segundoNombre" o "segundoApellido", y está vacío, permitimos "N/A"
                 if (filledValues[index] === '') {
-                    input.value = 'N/A'; // Rellenamos con "N/A" si está vacío
-                    clearError(input); // Quitamos error
+                    input.value = 'N/A'; // 👈 Valor por defecto lógico
+                    clearError(input);
                 } else {
                     clearError(input);
                 }
             }
         });
-    } else {
-        fields.forEach(clearError);
-    }
-}
+            } else {
+                fields.forEach(clearError);
+            }
+        }
 
         ['Madre', 'Padre', 'Tutor'].forEach(role => {
             const inputs = [
