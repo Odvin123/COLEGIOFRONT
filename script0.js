@@ -63,47 +63,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.classList.remove('is-valid');
             }
         }
-          function validateParentOrTutorFields(role) {
-            const fields = [
-                `primerNombre${role}`,
-                `segundoNombre${role}`,
-                `primerApellido${role}`,
-                `segundoApellido${role}`,
-                `tipoIdentificacion${role}`,
-                `cedula${role}`,
-                `telefono${role}`
-            ];
+        function validateParentOrTutorFields(role) {
+    const requiredFields = [
+        `primerNombre${role}`,
+        `primerApellido${role}`,
+        `tipoIdentificacion${role}`,
+        `cedula${role}`,
+        `telefono${role}`
+    ];
 
-            const anyFieldFilled = fields.some(field => {
-                const input = document.getElementById(field);
-                return input && input.value.trim() !== '';
-            });
+    const optionalFields = [
+        `segundoNombre${role}`,
+        `segundoApellido${role}`
+    ];
 
-          if (anyFilled) {
-        fields.forEach((field, index) => {
+    // Verificar si al menos un campo tiene valor
+    const hasAnyValue = [...requiredFields, ...optionalFields].some(field => {
+        const input = document.getElementById(field);
+        return input && input.value.trim() !== '';
+    });
+
+    if (hasAnyValue) {
+        // Validar campos obligatorios
+        requiredFields.forEach(field => {
             const input = document.getElementById(field);
-
-            // Si el campo NO es "segundoNombre" ni "segundoApellido", es obligatorio
-            if (!field.includes("segundoNombre") && !field.includes("segundoApellido")) {
-                if (filledValues[index] === '') {
-                    showError(input, `Este campo es obligatorio para ${role}.`);
-                } else {
-                    clearError(input);
-                }
+            if (input && input.value.trim() === '') {
+                showError(input, `Este campo es obligatorio para ${role}.`);
             } else {
-                // Si es "segundoNombre" o "segundoApellido", y está vacío, permitimos "N/A"
-                if (filledValues[index] === '') {
-                    input.value = 'N/A'; // 👈 Valor por defecto lógico
-                    clearError(input);
-                } else {
-                    clearError(input);
-                }
+                clearError(input);
             }
         });
-            } else {
-                fields.forEach(clearError);
+
+        // Limpiar errores en campos opcionales si están vacíos
+        optionalFields.forEach(field => {
+            const input = document.getElementById(field);
+            if (input && input.value.trim() === '') {
+                clearError(input);
             }
-        }
+        });
+    } else {
+        // Si no hay ningún campo lleno, limpiar errores
+        [...requiredFields, ...optionalFields].forEach(field => {
+            const input = document.getElementById(field);
+            if (input) clearError(input);
+        });
+    }
+}
 
         ['Madre', 'Padre', 'Tutor'].forEach(role => {
             const inputs = [
