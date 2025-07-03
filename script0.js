@@ -351,6 +351,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 nacionalidadSelect.addEventListener('change', updatePaisNacimiento);
                 updatePaisNacimiento();
             }
+            
+            applyLettersOnlyValidation(paisNacimientoInput, 'País de Nacimiento');
+
+            if (nacionalidadSelect && paisNacimientoInput) {
+    nacionalidadSelect.addEventListener('change', updatePaisNacimiento);
+    applyLettersOnlyValidation(paisNacimientoInput, 'País de Nacimiento'); 
+    updatePaisNacimiento();
+}
         }
 
         function setupGradeAndModalityFiltering() {
