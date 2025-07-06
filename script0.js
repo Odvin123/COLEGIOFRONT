@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const matriculaForm = document.getElementById('matriculaForm');
     if (matriculaForm) {
+        // --- INICIO: Tu CSS y funciones de validación auxiliares van aquí ---
         const style = document.createElement('style');
         style.textContent = `
             @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); /* Fuente "bonita" */
@@ -459,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 
-        // Apply validations to specific fields
+        // Aplicar las validaciones a los campos específicos
         applyLettersOnlyValidation(document.getElementById('primerNombre'), 'Primer Nombre');
         applyLettersOnlyValidation(document.getElementById('segundoNombre'), 'Segundo Nombre');
         applyLettersOnlyValidation(document.getElementById('primerApellido'), 'Primer Apellido');
@@ -494,11 +495,13 @@ document.addEventListener('DOMContentLoaded', function() {
         applyPhoneValidation(document.getElementById('telefonoTutor'), 8, '88887777');
 
 
-        // Setup dependent fields and initial values
+        // Configurar campos dependientes y valores iniciales
         setupNationalityDependentFields();
         setupGradeAndModalityFiltering();
         synchronizeLocationFields();
         setFechaMatriculaToday();
+
+        // --- FIN: Tu CSS y funciones de validación auxiliares van aquí ---
 
 
         matriculaForm.addEventListener('submit', async function(e) {
@@ -510,19 +513,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 data[key] = value.trim();
             }
 
-            // Handle radio button values as FormData doesn't handle unchecked radios
+            // Manejar valores de radio buttons que FormData no incluye si no están marcados
             data.turno = document.querySelector('input[name="turno"]:checked')?.value || '';
             data.repitente = document.querySelector('input[name="repitente"]:checked')?.value || '';
+            data.genero = document.querySelector('input[name="genero"]:checked')?.value || '';
+            data.discapacidad = document.querySelector('input[name="discapacidad"]:checked')?.value || '';
 
 
             let formIsValid = true;
 
-            // Clear previous errors and valid states
+            // Limpiar errores y estados de validación previos
             document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
 
-            // Re-run blur event for all relevant inputs to trigger validations
+            // Volver a ejecutar los eventos 'blur' para todos los inputs relevantes para activar las validaciones
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly && !input.disabled) {
                     const event = new Event('blur');
@@ -530,13 +535,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Specific validation for cedula when type is selected
+            // Validación específica para la cédula cuando se selecciona el tipo
             ['Madre', 'Padre', 'Tutor'].forEach(role => {
                 const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
                 const cedulaInput = document.getElementById(`cedula${role}`);
                 if (typeSelect && cedulaInput) {
-                    // Re-run cedula validation specifically
-                    applyCedulaValidation(typeSelect, cedulaInput); // This function also validates on blur/input, but good to re-check on submit
+                    applyCedulaValidation(typeSelect, cedulaInput);
 
                     if (typeSelect.value !== '' && cedulaInput.value.trim() === '' && !cedulaInput.disabled) {
                         showError(cedulaInput, 'Este campo es obligatorio cuando se selecciona un tipo de identificación.');
@@ -545,8 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-
-            // General required fields validation for student
+            // Validación general de campos obligatorios para el estudiante
             const studentRequiredFields = [
                 'telefono', 'direccion', 'primerNombre', 'primerApellido', 'fechaNacimiento',
                 'genero', 'peso', 'talla', 'nacionalidad', 'paisNacimiento',
@@ -554,13 +557,30 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             for (const fieldName of studentRequiredFields) {
                 const inputElement = this.querySelector(`[name="${fieldName}"]`);
-                if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
+                // Para radio buttons, la validación se hace diferente
+                if (inputElement && inputElement.type === 'radio') {
+                    const radioGroup = this.querySelectorAll(`input[name="${fieldName}"]`);
+                    const isRadioChecked = Array.from(radioGroup).some(radio => radio.checked);
+                    if (!isRadioChecked) {
+                        // Encuentra el contenedor del grupo de radios para mostrar el error
+                        const container = inputElement.closest('.form-group') || inputElement.parentNode;
+                        let errorSpan = container.querySelector('.error-message');
+                        if (!errorSpan) {
+                            errorSpan = document.createElement('span');
+                            errorSpan.classList.add('error-message');
+                            container.appendChild(errorSpan);
+                        }
+                        errorSpan.textContent = 'Este campo es obligatorio.';
+                        formIsValid = false;
+                    }
+                } else if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
                     showError(inputElement, 'Este campo es obligatorio.');
                     formIsValid = false;
                 }
             }
 
-            // At least one parent/tutor contact data is required
+
+            // Al menos un conjunto de datos de contacto de padre/tutor es requerido
             const isMadreComplete = data.primerNombreMadre || data.segundoNombreMadre || data.primerApellidoMadre || data.segundoApellidoMadre || data.tipoIdentificacionMadre || data.cedulaMadre || data.telefonoMadre;
             const isPadreComplete = data.primerNombrePadre || data.segundoNombrePadre || data.primerApellidoPadre || data.segundoApellidoPadre || data.tipoIdentificacionPadre || data.cedulaPadre || data.telefonoPadre;
             const isTutorComplete = data.primerNombreTutor || data.segundoNombreTutor || data.primerApellidoTutor || data.segundoApellidoTutor || data.tipoIdentificacionTutor || data.cedulaTutor || data.telefonoTutor;
@@ -577,10 +597,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessageElement.style.display = 'none';
                     errorMessageElement.textContent = "";
                 }
+                // Si al menos uno está completo, validar que los campos obligatorios de ese rol también lo estén
+                if (isMadreComplete) validateParentOrTutorFields('Madre');
+                if (isPadreComplete) validateParentOrTutorFields('Padre');
+                if (isTutorComplete) validateParentOrTutorFields('Tutor');
+
+                // Re-check formIsValid after parent/tutor specific validation
+                if (document.querySelectorAll('.is-invalid').length > 0) {
+                    formIsValid = false;
+                }
             }
 
 
-            // Required fields for academic data
+            // Campos obligatorios para los datos académicos
             const academicRequiredFields = [
                 'fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
                 'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad',
@@ -593,7 +622,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const radioGroup = this.querySelectorAll(`input[name="${fieldName}"]`);
                     const isRadioChecked = Array.from(radioGroup).some(radio => radio.checked);
                     if (!isRadioChecked) {
-                        // For radio buttons, show error on the first radio of the group or a common element
                         const container = inputElement.closest('.form-group') || inputElement.parentNode;
                         let errorSpan = container.querySelector('.error-message');
                         if (!errorSpan) {
@@ -603,10 +631,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         errorSpan.textContent = 'Este campo es obligatorio.';
                         formIsValid = false;
-                    } else {
-                        const container = inputElement.closest('.form-group') || inputElement.parentNode;
-                        const errorSpan = container.querySelector('.error-message');
-                        if (errorSpan) errorSpan.remove();
                     }
                 } else if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
                     showError(inputElement, 'Este campo es obligatorio.');
@@ -614,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Check if there are any .is-invalid fields after all validations
+            // Verificar si hay campos con errores después de todas las validaciones
             if (document.querySelectorAll('.is-invalid').length > 0) {
                 formIsValid = false;
             }
@@ -630,13 +654,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Hide the form and show loading
+            // Ocultar el formulario y mostrar mensaje de carga
             matriculaForm.style.display = 'none';
             const loadingMessage = document.getElementById('loading-message');
             if (loadingMessage) loadingMessage.style.display = 'block';
 
             try {
-                // 1. Save Academic Data
+                let matriculaId; // Variable para almacenar el ID generado
+
+                // 1. Guardar Datos Académicos (para obtener el matriculaId)
                 const academicData = {
                     fechaMatricula: data.fechaMatricula,
                     departamento: data.departamentoacad,
@@ -666,20 +692,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(`Error al guardar datos académicos: ${errorText}`);
                 }
                 const academicResult = await academicResponse.json();
-                const matriculaId = academicResult.matriculaId; // Ensure your backend returns matriculaId
+                matriculaId = academicResult.id; // ¡Aquí capturamos el ID generado por la BD!
+                console.log('✅ Datos académicos guardados. ID de Matrícula (académico):', matriculaId);
 
-                console.log('✅ Datos académicos guardados. Matricula ID:', matriculaId);
 
-
-                // 2. Save Student Data
+                // 2. Guardar Datos del Estudiante (usando el matriculaId obtenido)
                 const studentData = {
-                    matriculaId: matriculaId, // Link to academic data
+                    matriculaId: matriculaId, // Vincula al ID académico
                     primerNombre: data.primerNombre,
                     segundoNombre: data.segundoNombre,
                     primerApellido: data.primerApellido,
                     segundoApellido: data.segundoApellido,
                     fechaNacimiento: data.fechaNacimiento,
-                    edad: parseInt(data.edad),
+                    edad: parseInt(data.edad), // Asegúrate de que 'edad' es un número
                     genero: data.genero,
                     telefono: data.telefono,
                     direccion: data.direccion,
@@ -691,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     residenciaMunicipio: data.residenciaMunicipio,
                     lenguaMaterna: data.lenguaMaterna,
                     discapacidad: data.discapacidad,
-                    tipoDiscapacidad: data.tipoDiscapacidad,
+                    tipoDiscapacidad: data.tipoDiscapacidad, // Asegúrate de incluir esto si aplica
                     territorioIndigena: data.territorioIndigenaEstudiante,
                     habitaIndigena: data.habitaIndigenaEstudiante
                 };
@@ -712,30 +737,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('✅ Datos del estudiante guardados.');
 
 
-                // 3. Save Parent/Tutor Data (conditionally)
+                // 3. Guardar Datos de Padres/Tutor (condicionalmente, usando el matriculaId)
                 const parentRoles = ['Madre', 'Padre', 'Tutor'];
-                for (const role of parentRoles) {
-                    const primerNombre = data[`primerNombre${role}`];
-                    if (primerNombre) { // Only save if at least the first name is present
-                        const parentData = {
-                            matriculaId: matriculaId, // Link to academic data
-                            tipoFamiliar: role,
-                            primerNombre: primerNombre,
-                            segundoNombre: data[`segundoNombre${role}`],
-                            primerApellido: data[`primerApellido${role}`],
-                            segundoApellido: data[`segundoApellido${role}`],
-                            tipoIdentificacion: data[`tipoIdentificacion${role}`],
-                            cedula: data[`cedula${role}`],
-                            telefono: data[`telefono${role}`]
-                        };
+                const allParentDataForPdf = []; // Para recolectar todos los datos de padres para el PDF
 
-                        console.log(`Enviando datos de ${role}:`, parentData);
+                for (const role of parentRoles) {
+                    // Solo intentar guardar si al menos el primer nombre está presente para ese rol
+                    const primerNombre = data[`primerNombre${role}`];
+                    if (primerNombre) {
+                        const currentParentData = {
+                            matriculaId: matriculaId, // Vincula al ID académico
+                            // Los nombres de las propiedades deben coincidir con lo que espera tu `parentModel`
+                            // (ej. primerNombreMadre, segundoNombreMadre, etc.)
+                            [`primerNombre${role}`]: primerNombre,
+                            [`segundoNombre${role}`]: data[`segundoNombre${role}`] || null,
+                            [`primerApellido${role}`]: data[`primerApellido${role}`] || null,
+                            [`segundoApellido${role}`]: data[`segundoApellido${role}`] || null,
+                            [`tipoIdentificacion${role}`]: data[`tipoIdentificacion${role}`] || null,
+                            [`cedula${role}`]: data[`cedula${role}`] || null,
+                            [`telefono${role}`]: data[`telefono${role}`] || null
+                        };
+                        // Add a generic type for PDF generation distinction if needed, but not for DB save
+                        currentParentData.rol = role; // Esto es solo para la lógica interna del frontend o PDF si lo necesitas
+
+                        allParentDataForPdf.push(currentParentData); // Guardar para el PDF
+
+                        console.log(`Enviando datos de ${role} a la base de datos:`, currentParentData);
                         const parentResponse = await fetch(`${BACKEND_URL}/api/parent`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify(parentData)
+                            body: JSON.stringify(currentParentData)
                         });
 
                         if (!parentResponse.ok) {
@@ -746,13 +779,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
 
-                // 4. Generate PDF
+                // 4. Generar PDF (después de guardar TODOS los datos)
                 console.log('Generando PDF...');
-                const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf/${matriculaId}`, {
-                    method: 'GET', // Or POST if you need to send more data for PDF
+
+                // Tu pdfController.generateStudentPdf espera: { studentData, academicData, parentData }
+                // Debemos asegurarnos de que el 'parentData' aquí sea el objeto combinado
+                // que tu controlador de PDF espera.
+                // Como tu PDF Controller maneja 'parentData.primerNombreMadre', etc., necesitamos
+                // unificar los datos de madre, padre y tutor en un solo objeto 'parentData'
+                // que contenga todas las propiedades combinadas.
+                const combinedParentDataForPdf = {};
+                allParentDataForPdf.forEach(pData => {
+                    // Extiende el objeto combinado con las propiedades del padre/madre/tutor actual
+                    Object.assign(combinedParentDataForPdf, pData);
+                });
+                // Elimina la propiedad 'rol' que quizás añadimos para el bucle, si no la espera el PDF
+                delete combinedParentDataForPdf.rol;
+
+
+                const pdfPayload = {
+                    studentData: studentData,
+                    academicData: academicData,
+                    parentData: combinedParentDataForPdf // Este debe ser el objeto unificado
+                };
+
+                const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
+                    method: 'POST', // Tu controlador de PDF es un POST
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    body: JSON.stringify(pdfPayload),
                 });
 
                 if (!pdfResponse.ok) {
@@ -765,32 +821,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = `Matricula_${matriculaId}.pdf`;
+                a.download = `Matricula_${matriculaId}.pdf`; // Nombre del archivo PDF
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
 
                 console.log(' ✅  Todos los datos han sido guardados exitosamente y PDF generado.');
 
-                // Show success message
+                // Mostrar mensaje de éxito flotante
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert-float';
                 alertDiv.innerHTML = '<span class="emoji"> 🎉 </span> <span>¡Matrícula Exitosa!</span>';
                 document.body.appendChild(alertDiv);
-                void alertDiv.offsetWidth; // Trigger reflow to ensure transition
+                void alertDiv.offsetWidth; // Forzar reflow para la transición
                 alertDiv.classList.add('success-visible');
 
-                // Hide success message after a few seconds and clear form
+                // Ocultar mensaje de éxito después de unos segundos y limpiar formulario
                 setTimeout(() => {
                     alertDiv.classList.remove('success-visible');
                     setTimeout(() => {
                         alertDiv.remove();
-                        clearForm(); // Clear the form only after successful submission and PDF generation
-                    }, 500); // Wait for fade out
+                        clearForm(); // Limpiar el formulario solo después de todo el proceso exitoso
+                    }, 500); // Esperar que se desvanezca
                 }, 3000);
 
             } catch (error) {
-                console.error('  ❌  Error al conectar con el backend o generar PDF:', error);
+                console.error('  ❌  Error en el proceso de matrícula:', error);
                 const errorMessageElement = document.getElementById('error-message');
                 if (errorMessageElement) {
                     errorMessageElement.style.display = 'block';
@@ -798,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } finally {
                 if (loadingMessage) loadingMessage.style.display = 'none';
-                matriculaForm.style.display = 'block'; // Show form again if there was an error
+                matriculaForm.style.display = 'block'; // Mostrar formulario de nuevo si hubo un error
             }
         });
     }
