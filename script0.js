@@ -214,6 +214,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
+            
+              const telefonoInput = document.getElementById(`telefono${role}`); 
+    if (telefonoInput) {
+        applyPhoneValidation(telefonoInput, 8, '88887777'); 
+    }
+    
+
             const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
             const cedulaInput = document.getElementById(`cedula${role}`);
             if (typeSelect && cedulaInput) {
