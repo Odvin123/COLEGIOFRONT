@@ -489,6 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         matriculaForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('--- Inicio de la presentación del formulario ---');
 
             const formData = new FormData(this);
             const data = {};
@@ -499,6 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add radio button values
             data.turno = document.querySelector('input[name="turno"]:checked')?.value || '';
             data.repitente = document.querySelector('input[name="repitente"]:checked')?.value || '';
+            console.log('Datos del formulario recopilados:', data);
 
             let formIsValid = true;
 
@@ -528,10 +530,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-
             // Check if any invalid fields exist after re-validation
             if (document.querySelectorAll('.is-invalid').length > 0) {
                 formIsValid = false;
+                console.log('Errores de validación encontrados en el formulario.');
             }
 
             if (!formIsValid) {
@@ -540,6 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessageElement.textContent = 'Por favor, corrija los errores en el formulario.';
                     errorMessageElement.style.display = 'block';
                 }
+                console.log('Envío de formulario cancelado debido a errores de validación.');
                 return; // Stop form submission
             }
 
@@ -547,6 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Generate a unique matriculaId for linking records
             const matriculaId = uuidv4();
             data.matriculaId = matriculaId; // Add matriculaId to the main data object
+            console.log('MatriculaId generada:', matriculaId);
 
             // Separate data for each endpoint
             const studentData = {
@@ -633,6 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const academicData = {
+                matriculaId: data.matriculaId, // Asegúrate de enviar matriculaId también a academic
                 fechaMatricula: data.fechaMatricula,
                 modalidad: data.modalidad,
                 nivelEducativo: data.nivelEducativo,
@@ -670,14 +675,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 telefonoTutor: data.telefonoTutor
             };
 
+            console.log('Datos de estudiante a enviar:', studentData);
+            console.log('Datos de padres/tutores a enviar:', parentData);
+            console.log('Datos académicos a enviar:', academicData);
+            console.log('Datos de padres/tutores para PDF a enviar:', flattenedParentDataForPdf);
+
 
             const loadingMessage = document.getElementById('loading-message');
             const errorMessageElement = document.getElementById('error-message');
             loadingMessage.style.display = 'block'; // Show loading message
             errorMessageElement.style.display = 'none'; // Hide error message
+            matriculaForm.style.display = 'none'; // Hide form during submission
 
             try {
                 // 1. Send Student Data
+                console.log('Enviando datos del estudiante a:', `${BACKEND_URL}/api/student`);
                 const studentResponse = await fetch(`${BACKEND_URL}/api/student`, {
                     method: 'POST',
                     headers: {
@@ -688,11 +700,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (!studentResponse.ok) {
                     const errorText = await studentResponse.text();
+                    console.error('Respuesta de error de /api/student:', errorText);
                     throw new Error(`Error al guardar datos del estudiante: ${errorText}`);
                 }
-                console.log('✅ Datos del estudiante guardados.');
+                console.log('✅ Datos del estudiante guardados exitosamente.');
 
-                // 2. Send Parent Data (using studentData which contains parent info + matriculaId)
+                // 2. Send Parent Data
+                console.log('Enviando datos de padres/tutores a:', `${BACKEND_URL}/api/parent`);
                 const parentResponse = await fetch(`${BACKEND_URL}/api/parent`, {
                     method: 'POST',
                     headers: {
@@ -703,11 +717,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (!parentResponse.ok) {
                     const errorText = await parentResponse.text();
+                    console.error('Respuesta de error de /api/parent:', errorText);
                     throw new Error(`Error al guardar datos de padres/tutores: ${errorText}`);
                 }
-                console.log('✅ Datos de padres/tutores guardados.');
+                console.log('✅ Datos de padres/tutores guardados exitosamente.');
 
                 // 3. Send Academic Data
+                console.log('Enviando datos académicos a:', `${BACKEND_URL}/api/academic`);
                 const academicResponse = await fetch(`${BACKEND_URL}/api/academic`, {
                     method: 'POST',
                     headers: {
@@ -718,12 +734,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (!academicResponse.ok) {
                     const errorText = await academicResponse.text();
+                    console.error('Respuesta de error de /api/academic:', errorText);
                     throw new Error(`Error al guardar datos académicos: ${errorText}`);
                 }
-                console.log('✅ Datos académicos guardados.');
+                console.log('✅ Datos académicos guardados exitosamente.');
 
 
                 // 4. Generate PDF
+                console.log('Solicitando generación de PDF a:', `${BACKEND_URL}/api/generate-pdf`);
                 const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
                     method: 'POST',
                     headers: {
@@ -732,12 +750,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({
                         studentData: studentData,
                         academicData: academicData,
-                        parentData: flattenedParentDataForPdf // Use the flattened parent data for PDF
+                        parentData: flattenedParentDataForPdf
                     }),
                 });
 
                 if (!pdfResponse.ok) {
                     const errorText = await pdfResponse.text();
+                    console.error('Respuesta de error de /api/generate-pdf:', errorText);
                     throw new Error(`Error al generar el PDF: ${errorText}`);
                 }
 
@@ -752,22 +771,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.URL.revokeObjectURL(url);
                 console.log('✅ PDF generado y descargado exitosamente.');
 
-                clearForm();
+                // Show success message
                 const successMessage = document.getElementById('success-message');
                 if (successMessage) {
                     successMessage.classList.add('success-visible');
+                    // Automatically hide after 3 seconds
                     setTimeout(() => {
                         successMessage.classList.remove('success-visible');
                     }, 3000);
                 }
 
+                // Clear form
+                clearForm();
+                console.log('Formulario limpiado.');
+
+                // Redirect to index.html after a short delay to allow messages to be seen
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3500); // Redirect after 3.5 seconds
+
             } catch (error) {
-                console.error('  ❌  Error al conectar con el backend:', error);
+                console.error('  ❌  Error general en el proceso de matrícula:', error);
                 const errorMessageElement = document.getElementById('error-message');
                 if (errorMessageElement) {
                     let errorText = error.message;
                     if (error.message.includes('Failed to fetch')) {
-                        errorText = 'No se pudo conectar con el servidor. Por favor, intente de nuevo más tarde.';
+                        errorText = 'No se pudo conectar con el servidor. Verifique que el backend esté funcionando.';
                     } else if (error.message.includes('Error al guardar datos del estudiante')) {
                         errorText = 'Error al guardar los datos del estudiante. Verifique los campos e intente de nuevo.';
                     } else if (error.message.includes('Error al guardar datos de padres/tutores')) {
@@ -778,11 +807,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorText = 'Hubo un problema al generar el PDF. Asegúrese de que todos los datos sean válidos.';
                     }
                     errorMessageElement.style.display = 'block';
-                    errorMessageElement.textContent = `Error al generar el PDF: ${errorText}`;
+                    errorMessageElement.textContent = `Error: ${errorText}`;
                 }
             } finally {
                 loadingMessage.style.display = 'none'; // Hide loading message
-                matriculaForm.style.display = 'block'; // Ensure form is visible
+                // Note: Form will be hidden if successful and redirect, or shown if error
+                if (!formIsValid) { // Only show form if validation failed or other unhandled error
+                    matriculaForm.style.display = 'block';
+                }
+                console.log('--- Fin del proceso de presentación del formulario ---');
             }
         });
     }
