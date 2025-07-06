@@ -616,7 +616,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         residenciaMunicipio: data.residenciaMunicipio,
                         lenguaMaterna: data.lenguaMaterna,
                         discapacidad: data.discapacidad,
-                        tipoDiscapacidad: data.tipoDiscapacidad, // Asegúrate de que este campo exista en tu HTML si lo usas
                         territorioIndigena: data.territorioIndigenaEstudiante,
                         habitaIndigena: data.habitaIndigenaEstudiante
                     };
