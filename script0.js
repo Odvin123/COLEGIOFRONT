@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 matriculaForm.style.display = 'block';
                                 clearForm(); 
-                                window.location.href = '../index.html'; 
+ window.location.href = 'index.html'; 
                             }, { once: true });
                         }, 3000); 
 
