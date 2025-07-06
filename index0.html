@@ -1,1 +1,542 @@
-//HOLA
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Matrícula</title>
+    <link rel="stylesheet" href="styles0.css">
+    <style>
+        /* Estilos básicos para los mensajes de alerta */
+        .custom-alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            display: none; /* Oculto por defecto */
+        }
+        .custom-alert.success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .custom-alert.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+        /* ESTILOS CORREGIDOS PARA MENSAJES DE ERROR Y VALIDACIÓN */
+        .form-group {
+            position: relative; /* Esencial para posicionar el error-message absoluto */
+            margin-bottom: 1.5em; /* Espacio para el mensaje de error */
+        }
+
+        .form-check-inline-group { /* Nuevo contenedor para grupos de radio/checkbox */
+            position: relative;
+            margin-bottom: 2.5em; /* Más espacio para errores debajo de los radios */
+            padding-top: 0.5em; /* Espacio superior si es necesario */
+        }
+
+        .error-message {
+            color: #dc3545; /* Color rojo de Bootstrap para errores */
+            font-size: 0.875em;
+            display: block; /* Asegura que ocupe su propia línea */
+            position: absolute; /* Posicionamiento absoluto para no desacomodar */
+            bottom: -1.5em; /* Ajusta la posición debajo del input/select/radio group */
+            left: 0;
+            width: 100%;
+            text-align: left;
+        }
+        
+        /* Asegurarse de que los labels de radio estén bien */
+        .form-check-inline {
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+
+        .is-invalid {
+            border-color: #dc3545 !important; /* Rojo */
+        }
+        .is-valid {
+            border-color: #28a745 !important; /* Verde */
+        }
+        /* Añadido para los campos disabled */
+        input:disabled, select:disabled, textarea:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Formulario de Matrícula</h2>
+
+        <div id="formSuccessMessage" class="custom-alert success"></div>
+        <div id="formErrorMessage" class="custom-alert error"></div>
+        <div id="loadingIndicator" class="loading-indicator">Cargando... por favor espera.</div>
+
+        <form id="matriculaForm" novalidate>
+            <h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" required>
+                <span class="error-message" id="error-telefono"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección:</label>
+                <textarea id="direccion" name="direccion" required></textarea>
+                <span class="error-message" id="error-direccion"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="primerNombre">Primer Nombre:</label>
+                <input type="text" id="primerNombre" name="primerNombre" required pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
+                <span class="error-message" id="error-primerNombre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoNombre">Segundo Nombre:</label>
+                <input type="text" id="segundoNombre" name="segundoNombre" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
+                <span class="error-message" id="error-segundoNombre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="primerApellido">Primer Apellido:</label>
+                <input type="text" id="primerApellido" name="primerApellido" required pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
+                <span class="error-message" id="error-primerApellido"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoApellido">Segundo Apellido:</label>
+                <input type="text" id="segundoApellido" name="segundoApellido" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo letras">
+                <span class="error-message" id="error-segundoApellido"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+                <span class="error-message" id="error-fechaNacimiento"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="genero">Género:</label>
+                <select id="genero" name="genero" required>
+                    <option value="">Seleccione un género</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Masculino">Masculino</option>
+                </select>
+                <span class="error-message" id="error-genero"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="peso">Peso (kg):</label>
+                <input type="number" id="peso" name="peso" step="0.01" required min="0.01">
+                <span class="error-message" id="error-peso"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="talla">Talla (cm):</label>
+                <input type="number" id="talla" name="talla" step="0.01" required min="0.01">
+                <span class="error-message" id="error-talla"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="nacionalidad">Nacionalidad:</label>
+                <select id="nacionalidad" name="nacionalidad" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="Nicaragüense">Nicaragüense</option>
+                    <option value="Extranjero">Extranjero</option>
+                </select>
+                <span class="error-message" id="error-nacionalidad"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="paisNacimiento">País de Nacimiento:</label>
+                <input type="text" id="paisNacimiento" name="paisNacimiento" required>
+                <span class="error-message" id="error-paisNacimiento"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="residenciaDepartamento">Ciudad de Residencia:</label>
+                <select id="residenciaDepartamento" name="residenciaDepartamento" required>
+                    <option value="">Seleccione un departamento</option>
+                    <option value="Managua">Managua</option>
+                </select>
+                <span class="error-message" id="error-residenciaDepartamento"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="residenciaMunicipio">Municipio de Residencia:</label>
+                <select id="residenciaMunicipio" name="residenciaMunicipio" required>
+                    <option value="">Seleccione un municipio</option>
+                    <option value="Managua">Managua</option>
+                    <option value="Ciudad Sandino">Ciudad Sandino</option>
+                    <option value="Villa el Carmen">Villa el Carmen</option>
+                    <option value="El Crucero">El Crucero</option>
+                    <option value="Tipitapa">Tipitapa</option>
+                    <option value="Ticuantepe">Ticuantepe</option>
+                    <option value="Mateare">Mateare</option>
+                    <option value="San Rafael del Sur">San Rafael del Sur</option>
+                    <option value="San Francisco Libre">San Francisco Libre</option>
+                </select>
+                <span class="error-message" id="error-residenciaMunicipio"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="lenguaMaterna">Lengua Materna:</label>
+                <select id="lenguaMaterna" name="lenguaMaterna" required>
+                    <option value="">Seleccione una lengua</option>
+                    <option value="Español">Español</option>
+                    <option value="Miskitu">Miskitu</option>
+                    <option value="Mayangna">Mayangna</option>
+                    <option value="Garífuna">Garífuna</option>
+                    <option value="Inglés">Inglés</option>
+                    <option value="Ulwa">Ulwa</option>
+                    <option value="Rama">Rama</option>
+                    <option value="Creole">Creole</option>
+                </select>
+                <span class="error-message" id="error-lenguaMaterna"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="discapacidad">Discapacidad (según informe médico):</label>
+                <select id="discapacidad" name="discapacidad" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="Ninguna">Ninguna</option>
+                    <option value="Intelectual">Intelectual</option>
+                    <option value="Autismo">Autismo</option>
+                    <option value="Hipoacusia">Hipoacusia</option>
+                    <option value="Baja Visión">Baja Visión</option>
+                    <option value="Multidiscapacidad">Multidiscapacidad</option>
+                    <option value="Físico Motora">Físico Motora</option>
+                    <option value="Sordo">Sordo</option>
+                    <option value="Ciego">Ciego</option>
+                    <option value="Sordo-Ciego">Sordo-Ciego</option>
+                </select>
+                <span class="error-message" id="error-discapacidad"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoDiscapacidad">Tipo de Discapacidad:</label>
+                <input type="text" id="tipoDiscapacidad" name="tipoDiscapacidad" disabled placeholder="Describa el tipo de discapacidad">
+                <span class="error-message" id="error-tipoDiscapacidad"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="territorioIndigenaEstudiante">¿El estudiante pertenece a territorio indígena? ¿Cuál?:</label>
+                <select id="territorioIndigenaEstudiante" name="territorioIndigenaEstudiante">
+                    <option value="Ninguna">Ninguna</option>
+                    <option value="Miskitu">Miskitu</option>
+                    <option value="Mayangna">Mayangna</option>
+                    <option value="Rama">Rama</option>
+                    <option value="Creole">Creole</option>
+                    <option value="Garífuna">Garífuna</option>
+                    <option value="Chorotega">Chorotega</option>
+                </select>
+                <span class="error-message" id="error-territorioIndigenaEstudiante"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="habitaIndigenaEstudiante">¿El estudiante habita en territorio indígena? ¿Cuál?:</label>
+                <select id="habitaIndigenaEstudiante" name="habitaIndigenaEstudiante">
+                    <option value="Ninguna">Ninguna</option>
+                    <option value="Miskitu">Miskitu</option>
+                    <option value="Mayangna">Mayangna</option>
+                    <option value="Rama">Rama</option>
+                    <option value="Creole">Creole</option>
+                    <option value="Garífuna">Garífuna</option>
+                    <option value="Chorotega">Chorotega</option>
+                </select>
+                <span class="error-message" id="error-habitaIndigenaEstudiante"></span>
+            </div>
+            
+            <h3>DATOS PERSONALES DE LOS PADRES O TUTOR</h3>
+            <p style="color: red; text-align: center; display: none;" id="error-message">Debe completar al menos un conjunto de datos (madre, padre o tutor).</p>
+
+            <h4>Datos de la Madre</h4>
+            <div class="form-group">
+                <label for="primerNombreMadre">Primer Nombre de la Madre:</label>
+                <input type="text" id="primerNombreMadre" name="primerNombreMadre">
+                <span class="error-message" id="error-primerNombreMadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoNombreMadre">Segundo Nombre de la Madre:</label>
+                <input type="text" id="segundoNombreMadre" name="segundoNombreMadre">
+                <span class="error-message" id="error-segundoNombreMadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="primerApellidoMadre">Primer Apellido de la Madre:</label>
+                <input type="text" id="primerApellidoMadre" name="primerApellidoMadre">
+                <span class="error-message" id="error-primerApellidoMadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoApellidoMadre">Segundo Apellido de la Madre:</label>
+                <input type="text" id="segundoApellidoMadre" name="segundoApellidoMadre">
+                <span class="error-message" id="error-segundoApellidoMadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoIdentificacionMadre">Tipo de Identificación (Madre):</label>
+                <select id="tipoIdentificacionMadre" name="tipoIdentificacionMadre">
+                    <option value="">Seleccione</option>
+                    <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
+                    <option value="Cedula Extranjera">Cédula Extranjera</option>
+                </select>
+                <span class="error-message" id="error-tipoIdentificacionMadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="cedulaMadre">Número de cédula de la madre:</label>
+                <input type="text" id="cedulaMadre" name="cedulaMadre" placeholder="Ejemplo: 001-234567-8910A" disabled>
+                <span class="error-message" id="error-cedulaMadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="telefonoMadre">Teléfono de la madre (solo números):</label>
+                <input type="tel" id="telefonoMadre" name="telefonoMadre" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
+                <span class="error-message" id="error-telefonoMadre"></span>
+            </div>
+
+            <h4>Datos del Padre</h4>
+            <div class="form-group">
+                <label for="primerNombrePadre">Primer Nombre del Padre:</label>
+                <input type="text" id="primerNombrePadre" name="primerNombrePadre">
+                <span class="error-message" id="error-primerNombrePadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoNombrePadre">Segundo Nombre del Padre:</label>
+                <input type="text" id="segundoNombrePadre" name="segundoNombrePadre">
+                <span class="error-message" id="error-segundoNombrePadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="primerApellidoPadre">Primer Apellido del Padre:</label>
+                <input type="text" id="primerApellidoPadre" name="primerApellidoPadre">
+                <span class="error-message" id="error-primerApellidoPadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoApellidoPadre">Segundo Apellido del Padre:</label>
+                <input type="text" id="segundoApellidoPadre" name="segundoApellidoPadre">
+                <span class="error-message" id="error-segundoApellidoPadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoIdentificacionPadre">Tipo de Identificación (Padre):</label>
+                <select id="tipoIdentificacionPadre" name="tipoIdentificacionPadre">
+                    <option value="">Seleccione</option>
+                    <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
+                    <option value="Cedula Extranjera">Cédula Extranjera</option>
+                </select>
+                <span class="error-message" id="error-tipoIdentificacionPadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="cedulaPadre">Número de cédula del padre:</label>
+                <input type="text" id="cedulaPadre" name="cedulaPadre" placeholder="Ejemplo: 001-234567-8910A" disabled>
+                <span class="error-message" id="error-cedulaPadre"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="telefonoPadre">Teléfono del padre (solo números):</label>
+                <input type="tel" id="telefonoPadre" name="telefonoPadre" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
+                <span class="error-message" id="error-telefonoPadre"></span>
+            </div>
+
+            <h4>Datos del Tutor</h4>
+            <div class="form-group">
+                <label for="primerNombreTutor">Primer Nombre del Tutor:</label>
+                <input type="text" id="primerNombreTutor" name="primerNombreTutor">
+                <span class="error-message" id="error-primerNombreTutor"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoNombreTutor">Segundo Nombre del Tutor:</label>
+                <input type="text" id="segundoNombreTutor" name="segundoNombreTutor">
+                <span class="error-message" id="error-segundoNombreTutor"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="primerApellidoTutor">Primer Apellido del Tutor:</label>
+                <input type="text" id="primerApellidoTutor" name="primerApellidoTutor">
+                <span class="error-message" id="error-primerApellidoTutor"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoApellidoTutor">Segundo Apellido del Tutor:</label>
+                <input type="text" id="segundoApellidoTutor" name="segundoApellidoTutor">
+                <span class="error-message" id="error-segundoApellidoTutor"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoIdentificacionTutor">Tipo de Identificación (Tutor):</label>
+                <select id="tipoIdentificacionTutor" name="tipoIdentificacionTutor">
+                    <option value="">Seleccione</option>
+                    <option value="Cedula Nicaraguense">Cédula Nicaragüense</option>
+                    <option value="Cedula Extranjera">Cédula Extranjera</option>
+                </select>
+                <span class="error-message" id="error-tipoIdentificacionTutor"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="cedulaTutor">Número de cédula del tutor:</label>
+                <input type="text" id="cedulaTutor" name="cedulaTutor" placeholder="Ejemplo: 001-234567-8910A" disabled>
+                <span class="error-message" id="error-cedulaTutor"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="telefonoTutor">Teléfono del tutor (solo números):</label>
+                <input type="tel" id="telefonoTutor" name="telefonoTutor" pattern="[0-9]{8}" placeholder="Ejemplo: 88888888">
+                <span class="error-message" id="error-telefonoTutor"></span>
+            </div>
+            
+            <h3>DATOS ACADÉMICOS DEL ESTUDIANTE</h3>
+            <div class="form-group">
+                <label for="fechaMatricula">Fecha de matrícula del estudiante:</label>
+                <input type="text" id="fechaMatricula" name="fechaMatricula" readonly required>
+                <span class="error-message" id="error-fechaMatricula"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="departamentoacad">Ciudad de Residencia:</label>
+                <input type="text" id="departamentoacad" name="departamentoacad" readonly required>
+                <span class="error-message" id="error-departamentoacad"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="municipioAcad">Municipio:</label>
+                <input type="text" id="municipioAcad" name="municipioAcad" readonly required>
+                <span class="error-message" id="error-municipioAcad"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="codigoUnico">Código único del establecimiento:</label>
+                <input type="text" id="codigoUnico" name="codigoUnico" value="14432" readonly required>
+                <span class="error-message" id="error-codigoUnico"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="codigoCentro">Código del Centro Educativo:</label>
+                <input type="text" id="codigoCentro" name="codigoCentro" value="22224" readonly required>
+                <span class="error-message" id="error-codigoCentro"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="nombreCentro">Nombre del centro educativo:</label>
+                <input type="text" id="nombreCentro" name="nombreCentro" value="Colegio Soldado de la Cruz" readonly required>
+                <span class="error-message" id="error-nombreCentro"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="nivelEducativo">Nivel educativo:</label>
+                <select id="nivelEducativo" name="nivelEducativo" required>
+                    <option value="">Seleccione un nivel</option>
+                    <option value="Educación Inicial">Educación Inicial</option>
+                    <option value="Educación Primaria">Educación Primaria</option>
+                    <option value="Educación Secundaria">Educación Secundaria</option>
+                </select>
+                <span class="error-message" id="error-nivelEducativo"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="modalidad">Modalidad:</label>
+                <input type="text" id="modalidad" name="modalidad" readonly required>
+                <span class="error-message" id="error-modalidad"></span>
+            </div>
+
+            <div class="form-check-inline-group"> <label class="form-label d-block">Turno:</label>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="turno" value="Matutino" required> Matutino</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="turno" value="Vespertino"> Vespertino</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="turno" value="Nocturno"> Nocturno</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="turno" value="Sabatino"> Sabatino</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="turno" value="Dominical"> Dominical</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="turno" value="Encuentro Quincenal"> Encuentro Quincenal</label>
+                </div>
+                <span class="error-message" id="error-turno"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="grado">Nivel/Grado/Año/Ciclo/Grupo:</label>
+                <select id="grado" name="grado" required>
+                    <option value="">Seleccione un grado</option>
+                    <optgroup label="Preescolar">
+                        <option value="Primer Nivel">Primer Nivel</option>
+                        <option value="Segundo Nivel">Segundo Nivel</option>
+                        <option value="Tercer Nivel">Tercer Nivel</option>
+                    </optgroup>
+                    <optgroup label="Primaria">
+                        <option value="Primer grado">Primer grado</option>
+                        <option value="Segundo grado">Segundo grado</option>
+                        <option value="Tercer grado">Tercer grado</option>
+                        <option value="Cuarto grado">Cuarto grado</option>
+                        <option value="Quinto grado">Quinto grado</option>
+                        <option value="Sexto grado">Sexto grado</option>
+                    </optgroup>
+                    <optgroup label="Secundaria">
+                        <option value="Séptimo grado/Primer año">Séptimo grado/Primer año</option>
+                        <option value="Octavo grado/Segundo año">Octavo grado/Segundo año</option>
+                        <option value="Noveno grado/Tercer año">Noveno grado/Tercer año</option>
+                        <option value="Décimo grado/Cuarto año">Décimo grado/Cuarto año</option>
+                        <option value="Undécimo grado/Quinto año">Undécimo grado/Quinto año</option>
+                    </optgroup>
+                </select>
+                <span class="error-message" id="error-grado"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="seccion">Sección:</label>
+                <select id="seccion" name="seccion" required>
+                    <option value="">Seleccione una sección</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+                <span class="error-message" id="error-seccion"></span>
+            </div>
+
+            <div class="form-check-inline-group"> <label class="form-label d-block">¿Es repitente?:</label>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="repitente" value="Si" required> Sí</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label><input type="radio" name="repitente" value="No"> No</label>
+                </div>
+                <span class="error-message" id="error-repitente"></span>
+            </div>
+            
+            <button type="submit">Registrar</button>
+        </form>
+    </div>
+
+    <script>
+        window.BACKEND_API_URL = 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
+    </script>
+    <script src="script0.js"></script>
+</body>
+</html>
