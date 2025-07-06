@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const matriculaForm = document.getElementById('matriculaForm');
     if (matriculaForm) {
-        // --- INICIO: Tu CSS y funciones de validación auxiliares van aquí ---
         const style = document.createElement('style');
         style.textContent = `
             @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); /* Fuente "bonita" */
+
+            /* Estilos para el mensaje flotante de éxito */
             .alert-float {
                 position: fixed;
                 top: 50%; /* Centra verticalmente */
@@ -32,28 +33,72 @@ document.addEventListener('DOMContentLoaded', function() {
             .alert-float .emoji {
                 font-size: 1.8em; /* Tamaño del emoji */
             }
+
+            /* Estilos para los mensajes de error - Ajustados para los nuevos contenedores */
+            .form-group {
+                position: relative; /* Importante para posicionar los errores absolutamente */
+                margin-bottom: 1.5em; /* Espacio adicional para el error-message */
+            }
+
+            .form-check-inline-group { /* Nuevo contenedor para grupos de radio/checkbox */
+                position: relative;
+                margin-bottom: 2.5em; /* Más espacio para errores debajo de los radios */
+                padding-top: 0.5em; /* Espacio superior si es necesario */
+            }
+
+            .error-message {
+                color: #dc3545; /* Color rojo de Bootstrap para errores */
+                font-size: 0.875em;
+                display: block; /* Asegura que ocupe su propia línea */
+                position: absolute; /* Posicionamiento absoluto para no desacomodar */
+                bottom: -1.5em; /* Ajusta la posición debajo del input/select/radio group */
+                left: 0;
+                width: 100%;
+                text-align: left;
+            }
+
+            /* Asegúrate de que los inputs afectados por validación también tengan bordes */
+            .is-invalid {
+                border-color: #dc3545 !important;
+            }
+            .is-valid {
+                border-color: #28a745 !important;
+            }
         `;
         document.head.appendChild(style);
 
+        // Modificada para buscar el contenedor correcto
         function showError(input, message) {
-            let errorElement = input.nextElementSibling;
-            if (!errorElement || !errorElement.classList.contains('error-message')) {
+            let parentContainer = input.closest('.form-group') || input.closest('.form-check-inline-group');
+            if (!parentContainer) {
+                // Para radios que no tienen un .form-check-inline-group
+                parentContainer = input.parentNode.closest('.form-check-inline-group') || input.parentNode;
+            }
+
+            let errorElement = parentContainer.querySelector('.error-message');
+
+            if (!errorElement) {
                 errorElement = document.createElement('span');
                 errorElement.classList.add('error-message');
-                input.parentNode.insertBefore(errorElement, input.nextSibling);
+                parentContainer.appendChild(errorElement);
             }
             errorElement.textContent = message;
             input.classList.add('is-invalid');
             input.classList.remove('is-valid');
         }
 
+        // Modificada para buscar el contenedor correcto
         function clearError(input) {
-            const errorElement = input.nextElementSibling;
-            if (errorElement && errorElement.classList.contains('error-message')) {
+            let parentContainer = input.closest('.form-group') || input.closest('.form-check-inline-group');
+            if (!parentContainer) {
+                parentContainer = input.parentNode.closest('.form-check-inline-group') || input.parentNode;
+            }
+            const errorElement = parentContainer.querySelector('.error-message');
+            if (errorElement) {
                 errorElement.remove();
             }
             input.classList.remove('is-invalid');
-            if (input.value.trim() !== '' && !input.readOnly) {
+            if (input.value.trim() !== '' && !input.readOnly && !input.disabled) { // Solo añadir is-valid si no es readonly/disabled
                 input.classList.add('is-valid');
             } else {
                 input.classList.remove('is-valid');
@@ -65,43 +110,87 @@ document.addEventListener('DOMContentLoaded', function() {
                 `primerNombre${role}`,
                 `primerApellido${role}`,
                 `tipoIdentificacion${role}`,
-                `cedula${role}`,
-                `telefono${role}`
+                `cedula${role}`, // Condicional
+                `telefono${role}` // Condicional
             ];
             const optionalFields = [
                 `segundoNombre${role}`,
                 `segundoApellido${role}`
             ];
 
-            // Verificar si al menos un campo tiene valor
+            // Verificar si AL MENOS UN CAMPO de este rol tiene un valor (excluyendo el tipo de identificación y cédula inicial)
             const hasAnyValue = [...requiredFields, ...optionalFields].some(field => {
                 const input = document.getElementById(field);
-                return input && input.value.trim() !== '';
+                return input && input.type !== 'select-one' && input.value.trim() !== ''; // Excluir select para esta comprobación inicial
             });
+            
+            // Si el select de identificación o la cédula tienen valor, también se considera que hay "algún valor"
+            const tipoIdentificacionSelect = document.getElementById(`tipoIdentificacion${role}`);
+            const cedulaInput = document.getElementById(`cedula${role}`);
+            if (tipoIdentificacionSelect && tipoIdentificacionSelect.value !== '') {
+                hasAnyValue = true;
+            }
+            if (cedulaInput && cedulaInput.value !== '') {
+                hasAnyValue = true;
+            }
+
 
             if (hasAnyValue) {
-                // Validar campos obligatorios
-                requiredFields.forEach(field => {
-                    const input = document.getElementById(field);
-                    if (input && input.value.trim() === '') {
-                        showError(input, `Este campo es obligatorio para ${role}.`);
-                    } else {
-                        clearError(input);
+                let currentRoleHasErrors = false;
+                requiredFields.forEach(fieldId => {
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        // Validar campos requeridos directamente
+                        if (input.value.trim() === '') {
+                            // Cédula y teléfono son condicionales, los manejamos aparte si no hay tipo de identificación
+                            if (fieldId === `cedula${role}` || fieldId === `telefono${role}`) {
+                                const parentTypeSelect = document.getElementById(`tipoIdentificacion${role}`);
+                                // Si hay un tipo de identificación seleccionado, entonces estos campos son obligatorios
+                                if (parentTypeSelect && parentTypeSelect.value !== '') {
+                                    showError(input, `Este campo es obligatorio para ${role}.`);
+                                    currentRoleHasErrors = true;
+                                } else {
+                                    clearError(input); // No es error si no hay tipo de identificación
+                                }
+                            } else {
+                                showError(input, `Este campo es obligatorio para ${role}.`);
+                                currentRoleHasErrors = true;
+                            }
+                        } else {
+                            clearError(input);
+                        }
                     }
                 });
+                
+                // Validación específica para cédula si se seleccionó un tipo de identificación
+                if (tipoIdentificacionSelect && tipoIdentificacionSelect.value !== '' && cedulaInput && cedulaInput.value.trim() === '') {
+                    showError(cedulaInput, `Este campo es obligatorio para ${role} si seleccionó un tipo de identificación.`);
+                    currentRoleHasErrors = true;
+                } else if (tipoIdentificacionSelect && tipoIdentificacionSelect.value === '' && cedulaInput && cedulaInput.value.trim() !== '') {
+                    // Si la cédula tiene valor pero no hay tipo de identificación, esto es un error
+                    showError(tipoIdentificacionSelect, `Debe seleccionar un tipo de identificación para ${role}.`);
+                    currentRoleHasErrors = true;
+                }
+
+
+                // Si hay errores en campos requeridos, no intentar validar más allá
+                if (currentRoleHasErrors) {
+                    return false; // Indica que este rol tiene errores
+                }
+
                 // Limpiar errores en campos opcionales si están vacíos
                 optionalFields.forEach(field => {
                     const input = document.getElementById(field);
-                    if (input && input.value.trim() === '') {
-                        clearError(input);
-                    }
+                    if (input) clearError(input);
                 });
+                return true; // Indica que este rol está validado sin errores obligatorios
             } else {
-                // Si no hay ningún campo lleno, limpiar errores
+                // Si no hay ningún campo lleno para este rol, limpiar todos los errores
                 [...requiredFields, ...optionalFields].forEach(field => {
                     const input = document.getElementById(field);
                     if (input) clearError(input);
                 });
+                return true; // Considerado válido si está completamente vacío
             }
         }
 
@@ -118,11 +207,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             inputs.forEach(input => {
                 if (input) {
-                    input.addEventListener('input', () => validateParentOrTutorFields(role));
+                    // Solo validar en blur, el submit manejará la validación completa
                     input.addEventListener('blur', () => validateParentOrTutorFields(role));
+                    if (input.type === 'select-one') {
+                        input.addEventListener('change', () => validateParentOrTutorFields(role));
+                    }
                 }
             });
+            const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
+            const cedulaInput = document.getElementById(`cedula${role}`);
+            if (typeSelect && cedulaInput) {
+                applyCedulaValidation(typeSelect, cedulaInput);
+            }
         });
+
 
         const BACKEND_URL = window.BACKEND_API_URL || 'https://corporate-marketa-odvin123-2e265ec9.koyeb.app';
 
@@ -135,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const year = today.getFullYear();
                 fechaMatriculaInput.value = `${day}/${month}/${year}`;
                 clearError(fechaMatriculaInput);
+                fechaMatriculaInput.classList.add('is-valid'); // Marcar como válido si se autocompleta
             }
         }
 
@@ -146,24 +245,41 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.error-message').forEach(el => {
                 el.remove();
             });
-            const fechaMatriculaInput = document.getElementById('fechaMatricula');
-            if (fechaMatriculaInput) {
-                setFechaMatriculaToday();
-            }
 
-            const paisNacimientoInput = document.getElementById('paisNacimiento');
-            const nacionalidadSelect = document.getElementById('nacionalidad');
-            if (nacionalidadSelect && paisNacimientoInput) {
-                nacionalidadSelect.value = '';
-                const event = new Event('change');
-                nacionalidadSelect.dispatchEvent(event);
-            }
+            // Restablecer radios (si aplica, aunque ahora hay más selects)
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
 
-            const nivelEducativoSelect = document.getElementById('nivelEducativo');
-            if (nivelEducativoSelect) {
-                nivelEducativoSelect.value = '';
+            // Restablecer selects
+            document.querySelectorAll('select').forEach(select => {
+                select.value = '';
                 const event = new Event('change');
-                nivelEducativoSelect.dispatchEvent(event);
+                select.dispatchEvent(event); // Disparar change para actualizar dependencias
+                clearError(select);
+            });
+
+            // Restablecer inputs de texto/número que puedan tener estados particulares
+            document.querySelectorAll('input[type="text"], input[type="number"], input[type="tel"], textarea').forEach(input => {
+                input.value = '';
+                clearError(input);
+                input.classList.remove('is-valid', 'is-invalid');
+            });
+
+            // Asegurar que fechaMatricula se setee de nuevo
+            setFechaMatriculaToday();
+
+            // Sincronizar ubicaciones y grados
+            setupNationalityDependentFields();
+            setupGradeAndModalityFiltering();
+            synchronizeLocationFields();
+
+            // Deshabilitar tipoDiscapacidad
+            const tipoDiscapacidadInput = document.getElementById('tipoDiscapacidad');
+            if (tipoDiscapacidadInput) {
+                tipoDiscapacidadInput.value = '';
+                tipoDiscapacidadInput.disabled = true;
+                clearError(tipoDiscapacidadInput);
             }
 
             ['Madre', 'Padre', 'Tutor'].forEach(role => {
@@ -184,8 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorMessageElement.style.display = 'none';
                 errorMessageElement.textContent = '';
             }
-
-            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
         }
 
         function applyLettersOnlyValidation(inputElement, fieldName) {
@@ -203,12 +317,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 inputElement.addEventListener('blur', function() {
                     if (this.value.trim() === '') {
-                        clearError(this);
+                        clearError(this); // No es un error si está vacío al salir del campo
                     } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(this.value)) {
                         showError(this, `Solo se permiten letras y espacios para ${fieldName}.`);
                     } else {
                         clearError(this);
-                        this.classList.add('is-valid');
                     }
                 });
             }
@@ -226,30 +339,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         clearError(this);
                     }
-
-                    if (sanitizedValue.length > 0 && sanitizedValue.length < exactLength) {
-                        showError(this, `Faltan ${exactLength - sanitizedValue.length} dígitos. Ejemplo: ${example}`);
-                    } else if (sanitizedValue.length > exactLength) {
-                        event.target.value = sanitizedValue.slice(0, exactLength);
-                        showError(this, `El número debe tener exactamente ${exactLength} dígitos. Ejemplo: ${example}`);
-                    } else if (sanitizedValue.length === exactLength) {
-                        clearError(this);
-                        this.classList.add('is-valid');
-                    } else {
-                        clearError(this);
-                    }
                 });
 
                 inputElement.addEventListener('blur', function() {
                     if (this.value.trim() === '') {
-                        clearError(this);
+                        clearError(this); // No es un error si está vacío al salir del campo
                     } else if (this.value.length !== exactLength) {
                         showError(this, `El número debe tener exactamente ${exactLength} dígitos. Ejemplo: ${example}`);
                     } else if (!/^[0-9]+$/.test(this.value)) {
                         showError(this, 'Solo se permiten números. Ejemplo: ' + example);
                     } else {
                         clearError(this);
-                        this.classList.add('is-valid');
                     }
                 });
             }
@@ -258,8 +358,12 @@ document.addEventListener('DOMContentLoaded', function() {
         function applyCedulaValidation(typeSelectElement, cedulaInputElement) {
             if (typeSelectElement && cedulaInputElement) {
                 const validateCedula = () => {
-                    if (typeSelectElement.value === 'Cedula Nicaraguense') {
+                    const selectedType = typeSelectElement.value;
+                    let hasError = false;
+
+                    if (selectedType === 'Cedula Nicaraguense') {
                         cedulaInputElement.disabled = false;
+                        cedulaInputElement.placeholder = 'XXX-XXXXXX-XXXXA';
                         let value = cedulaInputElement.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
                         let formattedValue = '';
                         if (value.length > 0) {
@@ -269,7 +373,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (value.length > 9) {
                                     formattedValue += '-' + value.substring(9, 13);
                                     if (value.length > 13) {
-                                        formattedValue += value.substring(13, 14);
+                                        const lastChar = value.substring(13, 14);
+                                        if (/[A-Z]/.test(lastChar)) {
+                                            formattedValue += lastChar;
+                                        }
                                     }
                                 }
                             }
@@ -279,34 +386,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         cedulaInputElement.value = formattedValue;
 
-                        if (cedulaInputElement.value.trim() === '') {
-                            clearError(cedulaInputElement);
-                        } else if (!/^\d{3}-\d{6}-\d{4}[A-Z]$/.test(cedulaInputElement.value)) {
+                        if (!/^\d{3}-\d{6}-\d{4}[A-Z]$/.test(cedulaInputElement.value)) {
                             showError(cedulaInputElement, 'Formato de cédula nicaragüense incorrecto. Debe ser XXX-XXXXXX-XXXXA. Ejemplo: 123-456789-0123A');
+                            hasError = true;
                         } else {
                             clearError(cedulaInputElement);
-                            cedulaInputElement.classList.add('is-valid');
                         }
-                    } else if (typeSelectElement.value === 'Cedula Extranjera') {
+                    } else if (selectedType === 'Cedula Extranjera') {
                         cedulaInputElement.disabled = false;
-                        cedulaInputElement.placeholder = 'DNI o Documento válido'; // 👈 Mensaje solicitado
-                        clearError(cedulaInputElement);
-                        cedulaInputElement.classList.remove('is-invalid', 'is-valid');
-                        // No borramos el valor para que el usuario pueda escribir lo que necesite
+                        cedulaInputElement.placeholder = 'DNI o Documento válido';
+                        if (cedulaInputElement.value.trim() === '') {
+                             clearError(cedulaInputElement); // No hay error si está vacío, se valida al submit si es requerido
+                        } else {
+                            clearError(cedulaInputElement);
+                        }
                     } else {
-                        // Si no se selecciona tipo de identificación
                         cedulaInputElement.value = '';
                         cedulaInputElement.disabled = true;
                         clearError(cedulaInputElement);
+                    }
+                    // Si el select cambia y la cédula se deshabilita, asegurarse de limpiar su estado visual
+                    if (cedulaInputElement.disabled) {
                         cedulaInputElement.classList.remove('is-invalid', 'is-valid');
                     }
                 };
 
-                // Eventos para detectar cambios
                 typeSelectElement.addEventListener('change', validateCedula);
                 cedulaInputElement.addEventListener('input', validateCedula);
                 cedulaInputElement.addEventListener('blur', validateCedula);
-                validateCedula(); // Ejecutar una vez al cargar
+                validateCedula(); // Llamada inicial
             }
         }
 
@@ -323,11 +431,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 inputElement.addEventListener('blur', function() {
                     let value = parseFloat(this.value);
-                    if (isNaN(value) || value <= 0) {
+                    if (this.value.trim() === '') {
+                        clearError(this);
+                    } else if (isNaN(value) || value <= 0) {
                         showError(this, `El campo ${fieldName} debe ser un número positivo mayor que 0.`);
                     } else {
                         clearError(this);
-                        this.classList.add('is-valid');
                     }
                 });
             }
@@ -363,13 +472,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 updatePaisNacimiento();
             }
 
+            // Aplicar validación de solo letras al input de país de nacimiento
             applyLettersOnlyValidation(paisNacimientoInput, 'País de Nacimiento');
-
-            if (nacionalidadSelect && paisNacimientoInput) {
-                nacionalidadSelect.addEventListener('change', updatePaisNacimiento);
-                applyLettersOnlyValidation(paisNacimientoInput, 'País de Nacimiento');
-                updatePaisNacimiento();
-            }
         }
 
         function setupGradeAndModalityFiltering() {
@@ -385,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     gradoSelect.innerHTML = '';
                     const defaultGradoOption = document.createElement('option');
                     defaultGradoOption.value = '';
-                    defaultGradoOption.textContent = 'Seleccione una opción';
+                    defaultGradoOption.textContent = 'Seleccione un grado';
                     gradoSelect.appendChild(defaultGradoOption);
 
                     let filteredGradoOptions = [];
@@ -459,8 +563,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        // Manejo de visibilidad y obligatoriedad de Tipo de Discapacidad (ajustado para SELECT)
+        const discapacidadSelect = document.getElementById('discapacidad');
+        const tipoDiscapacidadInput = document.getElementById('tipoDiscapacidad');
 
-        // Aplicar las validaciones a los campos específicos
+        if (discapacidadSelect && tipoDiscapacidadInput) {
+            const toggleTipoDiscapacidad = () => {
+                const selectedDiscapacidad = discapacidadSelect.value;
+                if (selectedDiscapacidad !== '' && selectedDiscapacidad !== 'Ninguna') { // Habilitar si se selecciona una discapacidad real
+                    tipoDiscapacidadInput.disabled = false;
+                    tipoDiscapacidadInput.placeholder = 'Describa el tipo de discapacidad';
+                } else {
+                    tipoDiscapacidadInput.value = '';
+                    tipoDiscapacidadInput.disabled = true;
+                    tipoDiscapacidadInput.placeholder = '';
+                    clearError(tipoDiscapacidadInput); // Limpiar errores si se deshabilita
+                    tipoDiscapacidadInput.classList.remove('is-valid', 'is-invalid');
+                }
+            };
+
+            discapacidadSelect.addEventListener('change', toggleTipoDiscapacidad);
+            toggleTipoDiscapacidad(); // Llamada inicial al cargar
+            applyLettersOnlyValidation(tipoDiscapacidadInput, 'Tipo de Discapacidad'); // Aplica la validación de letras
+        }
+
+
+        // Aplicar todas las validaciones a los campos relevantes
         applyLettersOnlyValidation(document.getElementById('primerNombre'), 'Primer Nombre');
         applyLettersOnlyValidation(document.getElementById('segundoNombre'), 'Segundo Nombre');
         applyLettersOnlyValidation(document.getElementById('primerApellido'), 'Primer Apellido');
@@ -468,40 +596,14 @@ document.addEventListener('DOMContentLoaded', function() {
         applyPhoneValidation(document.getElementById('telefono'), 8, '88887777');
         applyPositiveNumberValidation(document.getElementById('peso'), 'peso');
         applyPositiveNumberValidation(document.getElementById('talla'), 'talla');
-
-        applyLettersOnlyValidation(document.getElementById('territorioIndigenaEstudiante'), 'Territorio Indígena');
-        applyLettersOnlyValidation(document.getElementById('habitaIndigenaEstudiante'), 'Habita Indígena');
-
-
-        applyLettersOnlyValidation(document.getElementById('primerNombreMadre'), 'Primer Nombre de la Madre');
-        applyLettersOnlyValidation(document.getElementById('segundoNombreMadre'), 'Segundo Nombre de la Madre');
-        applyLettersOnlyValidation(document.getElementById('primerApellidoMadre'), 'Primer Apellido de la Madre');
-        applyLettersOnlyValidation(document.getElementById('segundoApellidoMadre'), 'Segundo Apellido de la Madre');
-        applyCedulaValidation(document.getElementById('tipoIdentificacionMadre'), document.getElementById('cedulaMadre'));
-        applyPhoneValidation(document.getElementById('telefonoMadre'), 8, '88887777');
-
-        applyLettersOnlyValidation(document.getElementById('primerNombrePadre'), 'Primer Nombre del Padre');
-        applyLettersOnlyValidation(document.getElementById('segundoNombrePadre'), 'Segundo Nombre del Padre');
-        applyLettersOnlyValidation(document.getElementById('primerApellidoPadre'), 'Primer Apellido del Padre');
-        applyLettersOnlyValidation(document.getElementById('segundoApellidoPadre'), 'Segundo Apellido del Padre');
-        applyCedulaValidation(document.getElementById('tipoIdentificacionPadre'), document.getElementById('cedulaPadre'));
-        applyPhoneValidation(document.getElementById('telefonoPadre'), 8, '88887777');
-
-        applyLettersOnlyValidation(document.getElementById('primerNombreTutor'), 'Primer Nombre del Tutor');
-        applyLettersOnlyValidation(document.getElementById('segundoNombreTutor'), 'Segundo Nombre del Tutor');
-        applyLettersOnlyValidation(document.getElementById('primerApellidoTutor'), 'Primer Apellido del Tutor');
-        applyLettersOnlyValidation(document.getElementById('segundoApellidoTutor'), 'Segundo Apellido del Tutor');
-        applyCedulaValidation(document.getElementById('tipoIdentificacionTutor'), document.getElementById('cedulaTutor'));
-        applyPhoneValidation(document.getElementById('telefonoTutor'), 8, '88887777');
-
+        // No aplico validación de letras a los select de territorio/habita indígena directamente, ya que son selects.
+        // Si fueran inputs de texto para "otro", sí.
 
         // Configurar campos dependientes y valores iniciales
         setupNationalityDependentFields();
         setupGradeAndModalityFiltering();
         synchronizeLocationFields();
         setFechaMatriculaToday();
-
-        // --- FIN: Tu CSS y funciones de validación auxiliares van aquí ---
 
 
         matriculaForm.addEventListener('submit', async function(e) {
@@ -513,11 +615,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 data[key] = value.trim();
             }
 
-            // Manejar valores de radio buttons que FormData no incluye si no están marcados
+            // Capturar valores de radio buttons explícitamente (solo para 'turno' y 'repitente')
             data.turno = document.querySelector('input[name="turno"]:checked')?.value || '';
             data.repitente = document.querySelector('input[name="repitente"]:checked')?.value || '';
-            data.genero = document.querySelector('input[name="genero"]:checked')?.value || '';
-            data.discapacidad = document.querySelector('input[name="discapacidad"]:checked')?.value || '';
+            // Los campos 'genero' y 'discapacidad' ya se capturan del select directamente por formData.entries()
 
 
             let formIsValid = true;
@@ -527,43 +628,31 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
 
-            // Volver a ejecutar los eventos 'blur' para todos los inputs relevantes para activar las validaciones
+
+            // Volver a ejecutar los eventos 'blur' para inputs/selects/textareas para refrescar validación visual
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly && !input.disabled) {
                     const event = new Event('blur');
                     input.dispatchEvent(event);
-                }
-            });
-
-            // Validación específica para la cédula cuando se selecciona el tipo
-            ['Madre', 'Padre', 'Tutor'].forEach(role => {
-                const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
-                const cedulaInput = document.getElementById(`cedula${role}`);
-                if (typeSelect && cedulaInput) {
-                    applyCedulaValidation(typeSelect, cedulaInput);
-
-                    if (typeSelect.value !== '' && cedulaInput.value.trim() === '' && !cedulaInput.disabled) {
-                        showError(cedulaInput, 'Este campo es obligatorio cuando se selecciona un tipo de identificación.');
-                        formIsValid = false;
+                    // Para selects, también dispara 'change'
+                    if (input.tagName === 'SELECT') {
+                        const changeEvent = new Event('change');
+                        input.dispatchEvent(changeEvent);
                     }
                 }
             });
 
-            // Validación general de campos obligatorios para el estudiante
-            const studentRequiredFields = [
-                'telefono', 'direccion', 'primerNombre', 'primerApellido', 'fechaNacimiento',
-                'genero', 'peso', 'talla', 'nacionalidad', 'paisNacimiento',
-                'residenciaDepartamento', 'residenciaMunicipio', 'lenguaMaterna', 'discapacidad'
-            ];
-            for (const fieldName of studentRequiredFields) {
-                const inputElement = this.querySelector(`[name="${fieldName}"]`);
-                // Para radio buttons, la validación se hace diferente
-                if (inputElement && inputElement.type === 'radio') {
-                    const radioGroup = this.querySelectorAll(`input[name="${fieldName}"]`);
-                    const isRadioChecked = Array.from(radioGroup).some(radio => radio.checked);
-                    if (!isRadioChecked) {
-                        // Encuentra el contenedor del grupo de radios para mostrar el error
-                        const container = inputElement.closest('.form-group') || inputElement.parentNode;
+            // --- VALIDACIONES DE CAMPOS OBLIGATORIOS Y ESPECÍFICOS ---
+
+            // Validación de radio button groups ('turno', 'repitente')
+            const radioGroupsToValidate = ['turno', 'repitente'];
+            radioGroupsToValidate.forEach(groupName => {
+                const radios = this.querySelectorAll(`input[name="${groupName}"]`);
+                const isChecked = Array.from(radios).some(radio => radio.checked);
+                const container = radios[0]?.closest('.form-check-inline-group'); // Asegurarse de que el contenedor exista
+
+                if (!isChecked) {
+                    if (container) {
                         let errorSpan = container.querySelector('.error-message');
                         if (!errorSpan) {
                             errorSpan = document.createElement('span');
@@ -572,15 +661,67 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         errorSpan.textContent = 'Este campo es obligatorio.';
                         formIsValid = false;
+                        radios.forEach(radio => radio.classList.add('is-invalid')); // Marcar radios como inválidos
                     }
-                } else if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
-                    showError(inputElement, 'Este campo es obligatorio.');
-                    formIsValid = false;
+                } else {
+                    if (container) {
+                        const errorSpan = container.querySelector('.error-message');
+                        if (errorSpan) errorSpan.remove();
+                        radios.forEach(radio => radio.classList.remove('is-invalid')); // Limpiar si ya está válido
+                    }
+                }
+            });
+
+
+            // Si 'discapacidad' es algo distinto de "Ninguna" y vacío, entonces 'tipoDiscapacidad' es obligatorio
+            if (data.discapacidad !== '' && data.discapacidad !== 'Ninguna' && data.tipoDiscapacidad === '') {
+                const tipoDiscapacidadInput = document.getElementById('tipoDiscapacidad');
+                showError(tipoDiscapacidadInput, 'Debe especificar el tipo de discapacidad.');
+                formIsValid = false;
+            } else if (data.discapacidad === 'Ninguna' || data.discapacidad === '') {
+                // Si seleccionó "Ninguna" o nada, el campo tipoDiscapacidad debe estar vacío y deshabilitado
+                const tipoDiscapacidadInput = document.getElementById('tipoDiscapacidad');
+                if (tipoDiscapacidadInput.value.trim() !== '') {
+                    tipoDiscapacidadInput.value = ''; // Limpiar si tiene algo
+                }
+                clearError(tipoDiscapacidadInput); // Asegurar que no haya error
+            }
+
+
+            // Validación de campos obligatorios generales (inputs, selects, textareas)
+            // Excluir 'tipoDiscapacidad' de esta lista porque su obligatoriedad es condicional
+            const generalRequiredFields = [
+                'telefono', 'direccion', 'primerNombre', 'primerApellido', 'fechaNacimiento',
+                'peso', 'talla', 'nacionalidad', 'paisNacimiento',
+                'residenciaDepartamento', 'residenciaMunicipio', 'lenguaMaterna',
+                'discapacidad', // Discapacidad es obligatorio, pero su valor puede ser 'Ninguna'
+                'fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
+                'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad', 'grado', 'seccion',
+                'genero' // Género es un select ahora
+            ];
+
+            for (const fieldName of generalRequiredFields) {
+                const inputElement = this.querySelector(`[name="${fieldName}"]`);
+                if (inputElement && !inputElement.readOnly && !inputElement.disabled) {
+                    if (data[fieldName] === '' || data[fieldName] === null) { // También verifica null para selects
+                        // Si es el campo 'discapacidad' y su valor es 'Ninguna', no es un error de campo vacío
+                        if (fieldName === 'discapacidad' && data[fieldName] === 'Ninguna') {
+                            clearError(inputElement);
+                            inputElement.classList.add('is-valid');
+                            continue; // Saltar a la siguiente iteración
+                        }
+                        
+                        showError(inputElement, 'Este campo es obligatorio.');
+                        formIsValid = false;
+                    } else {
+                        clearError(inputElement);
+                        inputElement.classList.add('is-valid');
+                    }
                 }
             }
 
 
-            // Al menos un conjunto de datos de contacto de padre/tutor es requerido
+            // Validación de datos de padres/tutores
             const isMadreComplete = data.primerNombreMadre || data.segundoNombreMadre || data.primerApellidoMadre || data.segundoApellidoMadre || data.tipoIdentificacionMadre || data.cedulaMadre || data.telefonoMadre;
             const isPadreComplete = data.primerNombrePadre || data.segundoNombrePadre || data.primerApellidoPadre || data.segundoApellidoPadre || data.tipoIdentificacionPadre || data.cedulaPadre || data.telefonoPadre;
             const isTutorComplete = data.primerNombreTutor || data.segundoNombreTutor || data.primerApellidoTutor || data.segundoApellidoTutor || data.tipoIdentificacionTutor || data.cedulaTutor || data.telefonoTutor;
@@ -597,55 +738,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessageElement.style.display = 'none';
                     errorMessageElement.textContent = "";
                 }
-                // Si al menos uno está completo, validar que los campos obligatorios de ese rol también lo estén
-                if (isMadreComplete) validateParentOrTutorFields('Madre');
-                if (isPadreComplete) validateParentOrTutorFields('Padre');
-                if (isTutorComplete) validateParentOrTutorFields('Tutor');
-
-                // Re-check formIsValid after parent/tutor specific validation
-                if (document.querySelectorAll('.is-invalid').length > 0) {
-                    formIsValid = false;
-                }
+                // Si algún rol está parcialmente lleno, validar sus campos obligatorios
+                if (isMadreComplete && !validateParentOrTutorFields('Madre')) formIsValid = false;
+                if (isPadreComplete && !validateParentOrTutorFields('Padre')) formIsValid = false;
+                if (isTutorComplete && !validateParentOrTutorFields('Tutor')) formIsValid = false;
             }
 
 
-            // Campos obligatorios para los datos académicos
-            const academicRequiredFields = [
-                'fechaMatricula', 'departamentoacad', 'municipioAcad', 'codigoUnico',
-                'codigoCentro', 'nombreCentro', 'nivelEducativo', 'modalidad',
-                'turno', 'grado', 'seccion', 'repitente'
-            ];
-
-            for (const fieldName of academicRequiredFields) {
-                const inputElement = this.querySelector(`[name="${fieldName}"]`);
-                if (inputElement && inputElement.type === 'radio') {
-                    const radioGroup = this.querySelectorAll(`input[name="${fieldName}"]`);
-                    const isRadioChecked = Array.from(radioGroup).some(radio => radio.checked);
-                    if (!isRadioChecked) {
-                        const container = inputElement.closest('.form-group') || inputElement.parentNode;
-                        let errorSpan = container.querySelector('.error-message');
-                        if (!errorSpan) {
-                            errorSpan = document.createElement('span');
-                            errorSpan.classList.add('error-message');
-                            container.appendChild(errorSpan);
-                        }
-                        errorSpan.textContent = 'Este campo es obligatorio.';
-                        formIsValid = false;
-                    }
-                } else if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
-                    showError(inputElement, 'Este campo es obligatorio.');
-                    formIsValid = false;
-                }
-            }
-
-            // Verificar si hay campos con errores después de todas las validaciones
+            // Verificación final de si hay algún campo marcado como inválido
             if (document.querySelectorAll('.is-invalid').length > 0) {
                 formIsValid = false;
+                console.log('Detectados campos inválidos en la revisión final.');
             }
 
 
             if (!formIsValid) {
                 console.log('❌ Formulario no válido. Revise los campos.');
+                // Mueve el foco al primer campo con error
+                const firstInvalidField = document.querySelector('.is-invalid');
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                    // Opcional: desplazar la ventana a la vista del campo
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
                 if (errorMessageElement) {
                     errorMessageElement.style.display = 'block';
                     errorMessageElement.textContent = errorMessageElement.textContent || "Por favor, corrija los errores en el formulario.";
@@ -656,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Ocultar el formulario y mostrar mensaje de carga
             matriculaForm.style.display = 'none';
-            const loadingMessage = document.getElementById('loading-message');
+            const loadingMessage = document.getElementById('loadingIndicator'); // ID corregido
             if (loadingMessage) loadingMessage.style.display = 'block';
 
             try {
@@ -704,7 +819,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     primerApellido: data.primerApellido,
                     segundoApellido: data.segundoApellido,
                     fechaNacimiento: data.fechaNacimiento,
-                    edad: parseInt(data.edad), // Asegúrate de que 'edad' es un número
+                    // Calcular edad aquí si no hay un campo de edad explícito, o si es derivado
+                    // Por ahora, si no hay 'edad' en el formulario, se omitiría o se calcularía
+                    // Si tienes un campo de edad, asegúrate de que sea numérico y válido
+                    // edad: parseInt(data.edad), // Si existe un input 'edad'
                     genero: data.genero,
                     telefono: data.telefono,
                     direccion: data.direccion,
@@ -716,7 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     residenciaMunicipio: data.residenciaMunicipio,
                     lenguaMaterna: data.lenguaMaterna,
                     discapacidad: data.discapacidad,
-                    tipoDiscapacidad: data.tipoDiscapacidad, // Asegúrate de incluir esto si aplica
+                    tipoDiscapacidad: (data.discapacidad !== '' && data.discapacidad !== 'Ninguna') ? data.tipoDiscapacidad : null, // Solo guarda si hay discapacidad
                     territorioIndigena: data.territorioIndigenaEstudiante,
                     habitaIndigena: data.habitaIndigenaEstudiante
                 };
@@ -739,28 +857,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // 3. Guardar Datos de Padres/Tutor (condicionalmente, usando el matriculaId)
                 const parentRoles = ['Madre', 'Padre', 'Tutor'];
-                const allParentDataForPdf = []; // Para recolectar todos los datos de padres para el PDF
+                const allParentDataForPdf = {}; // Objeto único para recolectar todos los datos de padres para el PDF
 
                 for (const role of parentRoles) {
-                    // Solo intentar guardar si al menos el primer nombre está presente para ese rol
-                    const primerNombre = data[`primerNombre${role}`];
-                    if (primerNombre) {
+                    // Solo intentar guardar si al menos el primer nombre o algun otro campo significativo está presente para ese rol
+                    const isRoleDataPresent = data[`primerNombre${role}`] || data[`primerApellido${role}`] || data[`telefono${role}`] || data[`cedula${role}`] || data[`tipoIdentificacion${role}`];
+
+                    if (isRoleDataPresent) {
                         const currentParentData = {
                             matriculaId: matriculaId, // Vincula al ID académico
-                            // Los nombres de las propiedades deben coincidir con lo que espera tu `parentModel`
-                            // (ej. primerNombreMadre, segundoNombreMadre, etc.)
-                            [`primerNombre${role}`]: primerNombre,
-                            [`segundoNombre${role}`]: data[`segundoNombre${role}`] || null,
-                            [`primerApellido${role}`]: data[`primerApellido${role}`] || null,
-                            [`segundoApellido${role}`]: data[`segundoApellido${role}`] || null,
-                            [`tipoIdentificacion${role}`]: data[`tipoIdentificacion${role}`] || null,
-                            [`cedula${role}`]: data[`cedula${role}`] || null,
-                            [`telefono${role}`]: data[`telefono${role}`] || null
+                            tipoFamiliar: role, // Esto se usará para determinar qué tabla de padres es en tu backend
+                            primerNombre: data[`primerNombre${role}`] || null,
+                            segundoNombre: data[`segundoNombre${role}`] || null,
+                            primerApellido: data[`primerApellido${role}`] || null,
+                            segundoApellido: data[`segundoApellido${role}`] || null,
+                            tipoIdentificacion: data[`tipoIdentificacion${role}`] || null,
+                            cedula: data[`cedula${role}`] || null,
+                            telefono: data[`telefono${role}`] || null
                         };
-                        // Add a generic type for PDF generation distinction if needed, but not for DB save
-                        currentParentData.rol = role; // Esto es solo para la lógica interna del frontend o PDF si lo necesitas
 
-                        allParentDataForPdf.push(currentParentData); // Guardar para el PDF
+                        // Recopila los datos para el PDF también
+                        // Asegúrate de que las claves aquí coincidan con lo que tu PDF espera
+                        allParentDataForPdf[`primerNombre${role}`] = currentParentData.primerNombre;
+                        allParentDataForPdf[`segundoNombre${role}`] = currentParentData.segundoNombre;
+                        allParentDataForPdf[`primerApellido${role}`] = currentParentData.primerApellido;
+                        allParentDataForPdf[`segundoApellido${role}`] = currentParentData.segundoApellido;
+                        allParentDataForPdf[`tipoIdentificacion${role}`] = currentParentData.tipoIdentificacion;
+                        allParentDataForPdf[`cedula${role}`] = currentParentData.cedula;
+                        allParentDataForPdf[`telefono${role}`] = currentParentData.telefono;
+                        // Si tu PDF espera una estructura diferente, ajusta allParentDataForPdf aquí
 
                         console.log(`Enviando datos de ${role} a la base de datos:`, currentParentData);
                         const parentResponse = await fetch(`${BACKEND_URL}/api/parent`, {
@@ -782,29 +907,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 4. Generar PDF (después de guardar TODOS los datos)
                 console.log('Generando PDF...');
 
-                // Tu pdfController.generateStudentPdf espera: { studentData, academicData, parentData }
-                // Debemos asegurarnos de que el 'parentData' aquí sea el objeto combinado
-                // que tu controlador de PDF espera.
-                // Como tu PDF Controller maneja 'parentData.primerNombreMadre', etc., necesitamos
-                // unificar los datos de madre, padre y tutor en un solo objeto 'parentData'
-                // que contenga todas las propiedades combinadas.
-                const combinedParentDataForPdf = {};
-                allParentDataForPdf.forEach(pData => {
-                    // Extiende el objeto combinado con las propiedades del padre/madre/tutor actual
-                    Object.assign(combinedParentDataForPdf, pData);
-                });
-                // Elimina la propiedad 'rol' que quizás añadimos para el bucle, si no la espera el PDF
-                delete combinedParentDataForPdf.rol;
-
-
                 const pdfPayload = {
                     studentData: studentData,
                     academicData: academicData,
-                    parentData: combinedParentDataForPdf // Este debe ser el objeto unificado
+                    parentData: allParentDataForPdf // Pasa el objeto unificado de datos de padres
                 };
 
                 const pdfResponse = await fetch(`${BACKEND_URL}/api/generate-pdf`, {
-                    method: 'POST', // Tu controlador de PDF es un POST
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -821,7 +931,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = `Matricula_${matriculaId}.pdf`; // Nombre del archivo PDF
+                a.download = `Matricula_${matriculaId}.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
@@ -833,21 +943,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 alertDiv.className = 'alert-float';
                 alertDiv.innerHTML = '<span class="emoji"> 🎉 </span> <span>¡Matrícula Exitosa!</span>';
                 document.body.appendChild(alertDiv);
-                void alertDiv.offsetWidth; // Forzar reflow para la transición
+                void alertDiv.offsetWidth;
                 alertDiv.classList.add('success-visible');
 
-                // Ocultar mensaje de éxito después de unos segundos y limpiar formulario
+                // Ocultar mensaje y limpiar formulario
                 setTimeout(() => {
                     alertDiv.classList.remove('success-visible');
                     setTimeout(() => {
                         alertDiv.remove();
-                        clearForm(); // Limpiar el formulario solo después de todo el proceso exitoso
-                    }, 500); // Esperar que se desvanezca
+                        clearForm();
+                    }, 500);
                 }, 3000);
 
             } catch (error) {
                 console.error('  ❌  Error en el proceso de matrícula:', error);
-                const errorMessageElement = document.getElementById('error-message');
+                const errorMessageElement = document.getElementById('error-message'); // Mensaje de error general
                 if (errorMessageElement) {
                     errorMessageElement.style.display = 'block';
                     errorMessageElement.textContent = `Error al procesar la matrícula: ${error.message}`;
