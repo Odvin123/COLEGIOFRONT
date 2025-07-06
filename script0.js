@@ -576,6 +576,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const invalidInputs = this.querySelectorAll('.is-invalid');
             if (invalidInputs.length > 0) {
                 formIsValid = false;
+                // *** NUEVO: Desplazarse al primer campo inválido ***
+                invalidInputs[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             if (formIsValid) {
@@ -616,6 +618,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         residenciaMunicipio: data.residenciaMunicipio,
                         lenguaMaterna: data.lenguaMaterna,
                         discapacidad: data.discapacidad,
+                        tipoDiscapacidad: data.tipoDiscapacidad,
                         territorioIndigena: data.territorioIndigenaEstudiante,
                         habitaIndigena: data.habitaIndigenaEstudiante
                     };
@@ -705,33 +708,37 @@ document.addEventListener('DOMContentLoaded', function() {
                         const errorText = await pdfResponse.text();
                         throw new Error(`Error al generar el PDF: ${errorText}`);
                     }
-                    
-                    // Si el PDF se genera correctamente, puedes manejarlo aquí
-                   const pdfBlob = await pdfResponse.blob();
+
+                    // Descarga automática del PDF
+                    const pdfBlob = await pdfResponse.blob();
                     const pdfUrl = URL.createObjectURL(pdfBlob);
                     const a = document.createElement('a');
                     a.href = pdfUrl;
-                    a.download = `ficha_de_matricula_${studentData.primerNombre}_${studentData.primerApellido}.pdf`; // Nombre de archivo más descriptivo
+                    a.download = `ficha_de_matricula_${studentData.primerNombre || ''}_${studentData.primerApellido || ''}.pdf`;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
                     URL.revokeObjectURL(pdfUrl);
 
+
                     console.log('Todos los datos guardados y PDF generado con éxito.');
 
+                    // Muestra una alerta de éxito flotante
                     const successAlert = document.createElement('div');
                     successAlert.classList.add('alert-float');
                     successAlert.innerHTML = '<span class="emoji">✅</span> Datos enviados y PDF generado con éxito';
                     document.body.appendChild(successAlert);
 
+                    // Hace visible la alerta
                     setTimeout(() => successAlert.classList.add('success-visible'), 10);
 
+                    // Oculta la alerta y redirige después de 3 segundos
                     setTimeout(() => {
                         successAlert.classList.remove('success-visible');
-                        setTimeout(() => successAlert.remove(), 500); 
-                        clearForm(); 
-                        window.location.href = 'index.html'; 
-                    }, 3000); 
+                        setTimeout(() => successAlert.remove(), 500); // Elimina la alerta después de la transición
+                        clearForm(); // Limpia el formulario
+                        window.location.href = 'index.html'; // REDIRECCIÓN A INDEX.HTML
+                    }, 3000); // Muestra la alerta por 3 segundos
 
                 } catch (error) {
                     console.error('  ❌  Error en el proceso de matrícula:', error);
@@ -740,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessageElement.style.display = 'block';
                         errorMessageElement.textContent = `Error en el proceso de matrícula: ${error.message}`;
                     }
-                    matriculaForm.style.display = 'block'; // Vuelve a mostrar el formulario en caso de error
+                    matriculaForm.style.display = 'block';
                 }
             }
         });
