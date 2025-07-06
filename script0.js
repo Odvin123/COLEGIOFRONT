@@ -36,10 +36,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function showError(input, message) {
             let errorElement = input.nextElementSibling;
-            if (!errorElement || !errorElement.classList.contains('error-message')) {
-                errorElement = document.createElement('span');
-                errorElement.classList.add('error-message');
-                input.parentNode.insertBefore(errorElement, input.nextSibling);
+            // Si el input es parte de un grupo de radio o checkbox, busca el error en el contenedor padre común
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                const parentGroup = input.closest('.form-group') || input.parentNode; // Ajusta selector si tus radios están en otro contenedor
+                errorElement = parentGroup.querySelector('.error-message');
+                if (!errorElement) {
+                    errorElement = document.createElement('span');
+                    errorElement.classList.add('error-message');
+                    parentGroup.appendChild(errorElement);
+                }
+            } else {
+                if (!errorElement || !errorElement.classList.contains('error-message')) {
+                    errorElement = document.createElement('span');
+                    errorElement.classList.add('error-message');
+                    input.parentNode.insertBefore(errorElement, input.nextSibling);
+                }
             }
             errorElement.textContent = message;
             input.classList.add('is-invalid');
@@ -47,7 +58,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function clearError(input) {
-            const errorElement = input.nextElementSibling;
+            let errorElement;
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                const parentGroup = input.closest('.form-group') || input.parentNode;
+                errorElement = parentGroup.querySelector('.error-message');
+            } else {
+                errorElement = input.nextElementSibling;
+            }
+
             if (errorElement && errorElement.classList.contains('error-message')) {
                 errorElement.remove();
             }
@@ -483,10 +501,13 @@ document.addEventListener('DOMContentLoaded', function() {
             data.repitente = document.querySelector('input[name="repitente"]:checked')?.value || '';
 
             let formIsValid = true;
+            let firstInvalidElement = null; // Variable para guardar el primer elemento con error
 
             document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
+
+            // Disparar la validación blur para todos los campos relevantes
             this.querySelectorAll('input:not([type="radio"]), select, textarea').forEach(input => {
                 if (!input.readOnly && !input.disabled) {
                     const event = new Event('blur');
@@ -494,14 +515,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
+            // Validar campos de padres/tutores y colectar el primer error
             ['Madre', 'Padre', 'Tutor'].forEach(role => {
                 const typeSelect = document.getElementById(`tipoIdentificacion${role}`);
                 const cedulaInput = document.getElementById(`cedula${role}`);
                 if (typeSelect && cedulaInput) {
-                    applyCedulaValidation(typeSelect, cedulaInput);
+                    applyCedulaValidation(typeSelect, cedulaInput); // Re-aplicar validación por si acaso
 
                     if (typeSelect.value !== '' && cedulaInput.value.trim() === '' && !cedulaInput.disabled) {
                         showError(cedulaInput, 'Este campo es obligatorio cuando se selecciona un tipo de identificación.');
+                        if (!firstInvalidElement) firstInvalidElement = cedulaInput;
                         formIsValid = false;
                     }
                 }
@@ -516,6 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const inputElement = this.querySelector(`[name="${fieldName}"]`);
                 if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
                     showError(inputElement, 'Este campo es obligatorio.');
+                    if (!firstInvalidElement) firstInvalidElement = inputElement;
                     formIsValid = false;
                 }
             }
@@ -529,6 +553,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (errorMessageElement) {
                     errorMessageElement.style.display = 'block';
                     errorMessageElement.textContent = "Debe completar al menos un conjunto de datos de contacto (madre, padre o tutor).";
+                    // Si este es el primer error y el elemento es visible, lo marcamos
+                    if (!firstInvalidElement && errorMessageElement.offsetParent !== null) { // offsetParent !== null para verificar visibilidad
+                         firstInvalidElement = errorMessageElement;
+                    }
                 }
                 formIsValid = false;
             } else {
@@ -558,6 +586,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 parentDiv.appendChild(errorSpan);
                             }
                             errorSpan.textContent = `Seleccione una opción para ${fieldName}.`;
+                            // Si este es el primer error y el contenedor es visible, lo marcamos
+                            if (!firstInvalidElement && parentDiv.offsetParent !== null) {
+                                firstInvalidElement = parentDiv; // Apuntar al contenedor para scroll
+                            }
                         }
                         formIsValid = false;
                     } else {
@@ -569,16 +601,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 } else if (inputElement && data[fieldName] === '' && !inputElement.readOnly) {
                     showError(inputElement, 'Este campo es obligatorio.');
+                    if (!firstInvalidElement) firstInvalidElement = inputElement;
                     formIsValid = false;
                 }
             }
 
-            const invalidInputs = this.querySelectorAll('.is-invalid');
-            if (invalidInputs.length > 0) {
-                formIsValid = false;
-                // *** NUEVO: Desplazarse al primer campo inválido ***
-                invalidInputs[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Después de todas las validaciones, si el formulario no es válido, desplázate al primer error.
+            if (!formIsValid && firstInvalidElement) {
+                // Pequeño retardo para asegurar que el DOM se haya actualizado con las clases de error
+                setTimeout(() => {
+                    firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Opcional: enfocar el input si es un campo de entrada real
+                    if (firstInvalidElement.tagName === 'INPUT' || firstInvalidElement.tagName === 'SELECT' || firstInvalidElement.tagName === 'TEXTAREA') {
+                        firstInvalidElement.focus();
+                    }
+                }, 100); // Un pequeño retardo (ej. 100ms)
             }
+
 
             if (formIsValid) {
                 console.log('Todos los datos son válidos, enviando al backend...', data);
