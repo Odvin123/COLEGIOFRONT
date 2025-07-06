@@ -705,36 +705,33 @@ document.addEventListener('DOMContentLoaded', function() {
                         const errorText = await pdfResponse.text();
                         throw new Error(`Error al generar el PDF: ${errorText}`);
                     }
-
-                    // Opcional: Si el backend envía el PDF como un blob, puedes descargarlo
-                    // const pdfBlob = await pdfResponse.blob();
-                    // const pdfUrl = URL.createObjectURL(pdfBlob);
-                    // const a = document.createElement('a');
-                    // a.href = pdfUrl;
-                    // a.download = 'ficha_de_matricula.pdf';
-                    // document.body.appendChild(a);
-                    // a.click();
-                    // a.remove();
-                    // URL.revokeObjectURL(pdfUrl);
+                    
+                    // Si el PDF se genera correctamente, puedes manejarlo aquí
+                   const pdfBlob = await pdfResponse.blob();
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+                    const a = document.createElement('a');
+                    a.href = pdfUrl;
+                    a.download = `ficha_de_matricula_${studentData.primerNombre}_${studentData.primerApellido}.pdf`; // Nombre de archivo más descriptivo
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(pdfUrl);
 
                     console.log('Todos los datos guardados y PDF generado con éxito.');
 
-                    // Muestra una alerta de éxito flotante
                     const successAlert = document.createElement('div');
                     successAlert.classList.add('alert-float');
                     successAlert.innerHTML = '<span class="emoji">✅</span> Datos enviados y PDF generado con éxito';
                     document.body.appendChild(successAlert);
 
-                    // Hace visible la alerta
                     setTimeout(() => successAlert.classList.add('success-visible'), 10);
 
-                    // Oculta la alerta y redirige después de 3 segundos
                     setTimeout(() => {
                         successAlert.classList.remove('success-visible');
-                        setTimeout(() => successAlert.remove(), 500); // Elimina la alerta después de la transición
-                        clearForm(); // Limpia el formulario
-                        window.location.href = 'index.html'; // **REDIRECCIÓN A INDEX.HTML**
-                    }, 3000); // Muestra la alerta por 3 segundos
+                        setTimeout(() => successAlert.remove(), 500); 
+                        clearForm(); 
+                        window.location.href = 'index.html'; 
+                    }, 3000); 
 
                 } catch (error) {
                     console.error('  ❌  Error en el proceso de matrícula:', error);
